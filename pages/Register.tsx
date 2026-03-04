@@ -129,50 +129,50 @@ export const Register: React.FC = () => {
     `appearance-none rounded-lg relative block w-full px-3 py-2.5 border ${
       submitted && errors[field]
         ? 'border-rose-400 ring-1 ring-rose-400'
-        : 'border-slate-300 focus:ring-blue-500/20 focus:border-blue-500'
-    } placeholder-slate-400 text-slate-900 focus:outline-none sm:text-sm transition-all`;
+        : 'border-slate-300 dark:border-slate-600 focus:ring-blue-500/20 focus:border-blue-500'
+    } placeholder-slate-400 text-slate-900 dark:text-slate-100 dark:bg-slate-700 focus:outline-none sm:text-sm transition-all`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-lg w-full space-y-6 bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-premium-xl border border-slate-200/60">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+      <div className="max-w-lg w-full space-y-6 bg-white/80 dark:bg-slate-800/90 backdrop-blur-sm p-8 rounded-2xl shadow-premium-xl border border-slate-200/60 dark:border-slate-700/60">
         <div className="text-center">
           <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center mb-4 shadow-md">
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create Account</h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Create Account</h2>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Join the Item & Service Coding Request system
           </p>
         </div>
 
         {/* Invite Token Section */}
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Invitation Token</label>
+        <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-600/60">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Invitation Token</label>
           <div className="flex gap-2">
             <input
               type="text"
               placeholder="Paste your invite token here (optional)"
-              className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 rounded-lg text-sm focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               value={tokenInput}
               onChange={e => setTokenInput(e.target.value)}
             />
           </div>
           {tokenStatus === 'valid' && (
-            <div className="mt-2 flex items-center gap-1.5 text-emerald-700 text-sm">
+            <div className="mt-2 flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-sm">
               <CheckCircle size={14} />
               <span>Valid invite for <strong>{tokenEmail}</strong>{tokenRole ? ` (${tokenRole})` : ''}</span>
             </div>
           )}
           {tokenStatus === 'invalid' && tokenInput.trim() && (
-            <div className="mt-2 flex items-center gap-1.5 text-rose-600 text-sm">
+            <div className="mt-2 flex items-center gap-1.5 text-rose-600 dark:text-rose-400 text-sm">
               <XCircle size={14} />
               <span>Invalid, expired, or already used token</span>
             </div>
           )}
           {tokenStatus === 'idle' && (
-            <p className="mt-1.5 text-xs text-slate-500">
+            <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
               If you received an invitation link, the token is auto-filled. You can also register without one.
             </p>
           )}
@@ -181,7 +181,7 @@ export const Register: React.FC = () => {
         <form className="space-y-4" onSubmit={handleSubmit}>
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Full Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -197,7 +197,7 @@ export const Register: React.FC = () => {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Email Address <span className="text-red-500">*</span>
             </label>
             <input
@@ -210,14 +210,14 @@ export const Register: React.FC = () => {
               readOnly={tokenStatus === 'valid'}
             />
             {tokenStatus === 'valid' && (
-              <p className="mt-1 text-xs text-slate-500">Email pre-filled from invitation</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Email pre-filled from invitation</p>
             )}
             {submitted && errors.email && <p className="mt-1 text-xs text-rose-600">{errors.email}</p>}
           </div>
 
           {/* Contact Number */}
           <div>
-            <label htmlFor="contact" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="contact" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Contact Number
             </label>
             <input
@@ -233,7 +233,7 @@ export const Register: React.FC = () => {
 
           {/* Department */}
           <div>
-            <label htmlFor="dept" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="dept" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Division / Department <span className="text-red-500">*</span>
             </label>
             <input
@@ -248,26 +248,26 @@ export const Register: React.FC = () => {
           </div>
 
           {/* Project Site Info */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
-            <h4 className="text-xs uppercase font-bold text-slate-500 mb-3 tracking-widest">Project Site Info (If Applicable)</h4>
+          <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-600/60">
+            <h4 className="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 mb-3 tracking-widest">Project Site Info (If Applicable)</h4>
             <div className="space-y-3">
               <div>
-                <label htmlFor="projNum" className="block text-sm font-medium text-slate-700 mb-1">Project Number</label>
+                <label htmlFor="projNum" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Project Number</label>
                 <input
                   id="projNum"
                   type="text"
-                  className="appearance-none rounded-lg block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 sm:text-sm transition-all"
+                  className="appearance-none rounded-lg block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 placeholder-slate-400 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 sm:text-sm transition-all"
                   placeholder="e.g. PRJ-001"
                   value={formData.projectNumber}
                   onChange={e => handleChange('projectNumber', e.target.value)}
                 />
               </div>
               <div>
-                <label htmlFor="projName" className="block text-sm font-medium text-slate-700 mb-1">Project Name</label>
+                <label htmlFor="projName" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Project Name</label>
                 <input
                   id="projName"
                   type="text"
-                  className="appearance-none rounded-lg block w-full px-3 py-2 border border-slate-300 placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 sm:text-sm transition-all"
+                  className="appearance-none rounded-lg block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 placeholder-slate-400 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 sm:text-sm transition-all"
                   placeholder="e.g. Phase 2 Expansion"
                   value={formData.projectName}
                   onChange={e => handleChange('projectName', e.target.value)}
@@ -278,9 +278,9 @@ export const Register: React.FC = () => {
 
           {/* Role Preview */}
           {tokenRole && (
-            <div className="flex items-center gap-2 bg-blue-50 p-3 rounded-lg border border-blue-100/60">
-              <AlertTriangle size={14} className="text-blue-600 shrink-0" />
-              <span className="text-sm text-blue-800">
+            <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-100/60 dark:border-blue-800/60">
+              <AlertTriangle size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+              <span className="text-sm text-blue-800 dark:text-blue-300">
                 You will be registered as: <strong>{tokenRole}</strong>
               </span>
             </div>

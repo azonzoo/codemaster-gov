@@ -10,10 +10,10 @@ const iconMap = {
 };
 
 const bgMap = {
-  success: 'bg-emerald-50 border-emerald-200/60',
-  error: 'bg-rose-50 border-rose-200/60',
-  info: 'bg-blue-50 border-blue-200/60',
-  warning: 'bg-amber-50 border-amber-200/60',
+  success: 'bg-emerald-50 border-emerald-200/60 dark:bg-emerald-950/80 dark:border-emerald-800/60',
+  error: 'bg-rose-50 border-rose-200/60 dark:bg-rose-950/80 dark:border-rose-800/60',
+  info: 'bg-blue-50 border-blue-200/60 dark:bg-blue-950/80 dark:border-blue-800/60',
+  warning: 'bg-amber-50 border-amber-200/60 dark:bg-amber-950/80 dark:border-amber-800/60',
 };
 
 export const ToastContainer: React.FC = () => {
@@ -55,7 +55,7 @@ export const ToastContainer: React.FC = () => {
           className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-premium-lg backdrop-blur-sm animate-slideIn ${bgMap[toast.type]}`}
         >
           {iconMap[toast.type]}
-          <span className="text-sm text-slate-800 flex-1">{toast.message}</span>
+          <span className="text-sm text-slate-800 dark:text-slate-200 flex-1">{toast.message}</span>
           <button
             onClick={() => removeToast(toast.id)}
             className="text-slate-400 hover:text-slate-600 shrink-0 transition"

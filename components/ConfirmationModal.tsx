@@ -16,20 +16,20 @@ interface ConfirmationModalProps {
 const variantConfig = {
   danger: {
     icon: <XCircle size={24} className="text-rose-600" />,
-    bg: 'bg-rose-50',
-    border: 'border-rose-200/60',
+    bg: 'bg-rose-50 dark:bg-rose-900/30',
+    border: 'border-rose-200/60 dark:border-rose-800/60',
     btn: 'bg-rose-600 hover:bg-rose-700 focus:ring-rose-500',
   },
   warning: {
     icon: <AlertTriangle size={24} className="text-amber-600" />,
-    bg: 'bg-amber-50',
-    border: 'border-amber-200/60',
+    bg: 'bg-amber-50 dark:bg-amber-900/30',
+    border: 'border-amber-200/60 dark:border-amber-800/60',
     btn: 'bg-amber-600 hover:bg-amber-700 focus:ring-amber-500',
   },
   info: {
     icon: <Info size={24} className="text-blue-600" />,
-    bg: 'bg-blue-50',
-    border: 'border-blue-200/60',
+    bg: 'bg-blue-50 dark:bg-blue-900/30',
+    border: 'border-blue-200/60 dark:border-blue-800/60',
     btn: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
   },
 };
@@ -102,12 +102,12 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       {/* Modal */}
       <div
         ref={modalRef}
-        className="relative bg-white rounded-2xl shadow-premium-xl border border-slate-200/60 max-w-md w-full mx-4 animate-fadeIn"
+        className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-premium-xl border border-slate-200/60 dark:border-slate-700/60 max-w-md w-full mx-4 animate-fadeIn"
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 p-1 rounded-lg transition"
+          className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 rounded-lg transition"
           aria-label="Close dialog"
         >
           <X size={18} />
@@ -120,10 +120,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               {config.icon}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 id="modal-title" className="text-lg font-bold text-slate-900">
+              <h3 id="modal-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 {title}
               </h3>
-              <p className="mt-2 text-sm text-slate-600 leading-relaxed">{message}</p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{message}</p>
             </div>
           </div>
 
@@ -131,7 +131,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <div className="flex justify-end gap-3 mt-6">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition"
+              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition"
               disabled={loading}
             >
               {cancelLabel}

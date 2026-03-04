@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* Class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================
    PREMIUM THEME TOKENS
    ============================================ */
@@ -25,6 +28,13 @@ html {
 body {
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   background-color: #f8fafc;
+  color: #0f172a;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
 }
 
 /* ============================================
@@ -34,6 +44,9 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
 /* ============================================
    ANIMATIONS
@@ -59,6 +72,10 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+.dark .animate-shimmer {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200% 100%;
+}
 
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 0 0 rgb(59 130 246 / 0.2); }
@@ -76,6 +93,10 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(226, 232, 240, 0.8);
+}
+.dark .glass-card {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.8);
 }
 
 /* Left accent card */
@@ -135,6 +156,11 @@ body {
   box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
   outline: none;
 }
+.dark .input-premium {
+  border-color: #475569;
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
 
 /* Icon containers with gradients */
 .icon-container {
@@ -164,9 +190,16 @@ body {
   color: #7c3aed;
 }
 
+.dark .icon-container-blue { background: linear-gradient(135deg, #1e3a5f, #1e293b); color: #60a5fa; }
+.dark .icon-container-emerald { background: linear-gradient(135deg, #064e3b, #1e293b); color: #34d399; }
+.dark .icon-container-rose { background: linear-gradient(135deg, #4c1d1f, #1e293b); color: #fb7185; }
+.dark .icon-container-amber { background: linear-gradient(135deg, #451a03, #1e293b); color: #fbbf24; }
+.dark .icon-container-violet { background: linear-gradient(135deg, #2e1065, #1e293b); color: #a78bfa; }
+
 /* Table row hover */
 .table-row-hover { transition: background-color 150ms ease; }
 .table-row-hover:hover { background-color: #f8fafc; }
+.dark .table-row-hover:hover { background-color: #1e293b; }
 
 /* Step gradients */
 .step-active { background: linear-gradient(90deg, #2563eb, #3b82f6); }
@@ -188,4 +221,73 @@ body {
   border: 2px solid white;
   box-shadow: 0 0 0 2px #e2e8f0;
   flex-shrink: 0;
+}
+.dark .timeline-dot {
+  border-color: #1e293b;
+  box-shadow: 0 0 0 2px #475569;
+}
+
+/* ============================================
+   DARK MODE OVERRIDES FOR FORM ELEMENTS
+   ============================================ */
+.dark select,
+.dark input,
+.dark textarea {
+  background-color: #1e293b;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+.dark select:focus,
+.dark input:focus,
+.dark textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15);
+}
+.dark select option {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE IMPROVEMENTS
+   ============================================ */
+
+/* Minimum touch target size (44px) for interactive elements on small screens */
+@media (max-width: 768px) {
+  button,
+  a,
+  select,
+  [role="tab"],
+  [role="link"],
+  .table-row-hover td {
+    min-height: 44px;
+  }
+
+  select {
+    min-height: 44px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  /* Make filter bar stack vertically on mobile */
+  .filter-bar-wrap {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Improve table readability on mobile */
+  .table-row-hover td {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  /* Scrollable table hint shadow */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* KPI cards: ensure text doesn't break */
+  .text-2xl {
+    font-size: 1.25rem;
+  }
 }

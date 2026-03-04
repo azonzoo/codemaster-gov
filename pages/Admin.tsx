@@ -95,6 +95,18 @@ export const Admin: React.FC = () => {
   };
 
   // --- Invite Handlers ---
+  const buildInviteLink = (tokenStr: string) =>
+    `${window.location.origin}/register?token=${tokenStr}`;
+
+  const buildMailtoLink = (email: string, tokenStr: string) => {
+    const link = buildInviteLink(tokenStr);
+    const subject = encodeURIComponent('You are invited to join CodeMaster Governance');
+    const body = encodeURIComponent(
+      `Hello,\n\nYou have been invited to join the CodeMaster Item & Service Coding Request system.\n\nPlease click the link below to create your account:\n${link}\n\nThis invitation expires in 7 days.\n\nBest regards,\nCodeMaster Governance Team`
+    );
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  };
+
   const handleCreateInvite = () => {
     if (!inviteEmail.trim()) {
       addToast('Please enter an email address.', 'warning');
@@ -105,15 +117,23 @@ export const Admin: React.FC = () => {
       return;
     }
     const token = createInviteToken(inviteEmail.trim(), inviteRole);
+    const email = inviteEmail.trim();
     setInviteEmail('');
-    const link = `${window.location.origin}/register?token=${token.token}`;
+    const link = buildInviteLink(token.token);
     navigator.clipboard.writeText(link).then(() => {
       addToast('Invite link copied to clipboard!', 'success');
     }).catch(() => {});
+    // Open the user's email client with the invite pre-filled
+    window.open(buildMailtoLink(email, token.token), '_self');
+  };
+
+  const sendInviteEmail = (email: string, tokenStr: string) => {
+    window.open(buildMailtoLink(email, tokenStr), '_self');
+    addToast(`Opening email client for ${email}...`, 'info');
   };
 
   const copyInviteLink = async (tokenStr: string) => {
-    const link = `${window.location.origin}/register?token=${tokenStr}`;
+    const link = buildInviteLink(tokenStr);
     try {
       await navigator.clipboard.writeText(link);
       addToast('Invite link copied to clipboard.', 'success');
@@ -147,16 +167,37 @@ export const Admin: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Admin Configuration</h2>
+      <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Admin Configuration</h2>
 
-      <div className="flex gap-1 border-b border-slate-200/60 overflow-x-auto">
+      <div
+        className="flex gap-1 border-b border-slate-200/60 dark:border-slate-700/60 overflow-x-auto"
+        role="tablist"
+        aria-label="Admin panel sections"
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const currentIndex = tabs.findIndex(t => t.key === activeTab);
+            const nextIndex = e.key === 'ArrowRight'
+              ? (currentIndex + 1) % tabs.length
+              : (currentIndex - 1 + tabs.length) % tabs.length;
+            setActiveTab(tabs[nextIndex].key);
+            const nextButton = document.getElementById(`tab-${tabs[nextIndex].key}`);
+            nextButton?.focus();
+          }
+        }}
+      >
         {tabs.map(tab => (
           <button
             key={tab.key}
+            role="tab"
+            id={`tab-${tab.key}`}
+            aria-selected={activeTab === tab.key}
+            aria-controls={`tabpanel-${tab.key}`}
+            tabIndex={activeTab === tab.key ? 0 : -1}
             className={`py-2.5 px-4 font-medium text-sm whitespace-nowrap transition-colors ${
               activeTab === tab.key
                 ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-slate-500 hover:text-slate-700'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
             onClick={() => setActiveTab(tab.key)}
           >
@@ -167,7 +208,7 @@ export const Admin: React.FC = () => {
 
       {/* --- ATTRIBUTES TAB --- */}
       {activeTab === 'attributes' && (
-        <div className="space-y-4">
+        <div role="tabpanel" id="tabpanel-attributes" aria-labelledby="tab-attributes" tabIndex={0} className="space-y-4">
           <div className="flex justify-end">
             <button
               onClick={() => setEditingAttr({})}
@@ -178,41 +219,45 @@ export const Admin: React.FC = () => {
           </div>
 
           {editingAttr && (
-            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200/60 space-y-4 shadow-premium">
-              <h4 className="font-bold text-slate-700">{editingAttr.id ? 'Edit' : 'New'} Attribute</h4>
+            <div className="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 space-y-4 shadow-premium">
+              <h4 className="font-bold text-slate-700 dark:text-slate-300">{editingAttr.id ? 'Edit' : 'New'} Attribute</h4>
               <div className="grid grid-cols-2 gap-4">
                 <input
                   placeholder="Name"
-                  className="p-2.5 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-blue-500/20 transition"
+                  aria-label="Attribute name"
+                  className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-blue-500 focus:ring-blue-500/20 transition"
                   value={editingAttr.name || ''}
                   onChange={e => setEditingAttr({ ...editingAttr, name: e.target.value })}
                 />
                 <select
-                  className="p-2.5 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-blue-500/20 transition"
+                  aria-label="Attribute type"
+                  className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-blue-500 focus:ring-blue-500/20 transition"
                   value={editingAttr.type || AttributeType.TEXT}
                   onChange={e => setEditingAttr({ ...editingAttr, type: e.target.value as AttributeType })}
                 >
                   {Object.values(AttributeType).map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
-                <label className="flex items-center gap-2 text-sm text-slate-700">
+                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                   <input type="checkbox" className="rounded text-blue-600 focus:ring-blue-500/20" checked={editingAttr.mandatory || false} onChange={e => setEditingAttr({ ...editingAttr, mandatory: e.target.checked })} />
                   Mandatory
                 </label>
-                <label className="flex items-center gap-2 text-sm text-slate-700">
+                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                   <input type="checkbox" className="rounded text-blue-600 focus:ring-blue-500/20" checked={editingAttr.includeInAutoDescription || false} onChange={e => setEditingAttr({ ...editingAttr, includeInAutoDescription: e.target.checked })} />
                   Use in Auto Description
                 </label>
                 <input
                   type="number"
                   placeholder="Order"
-                  className="p-2.5 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-blue-500/20 transition"
+                  aria-label="Description order"
+                  className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-blue-500 focus:ring-blue-500/20 transition"
                   value={editingAttr.descriptionOrder || 0}
                   onChange={e => setEditingAttr({ ...editingAttr, descriptionOrder: parseInt(e.target.value) || 0 })}
                 />
                 {(editingAttr.type === AttributeType.DROPDOWN || editingAttr.type === AttributeType.NUMERIC_UNIT || editingAttr.type === AttributeType.MULTI_SELECT) && (
                   <input
                     placeholder="Options/Units (comma separated)"
-                    className="p-2.5 border border-slate-300 rounded-lg col-span-2 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                    aria-label="Options or units, comma separated"
+                    className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 col-span-2 focus:border-blue-500 focus:ring-blue-500/20 transition"
                     value={(editingAttr.type === AttributeType.NUMERIC_UNIT ? editingAttr.units : editingAttr.options)?.join(', ') || ''}
                     onChange={e => {
                       const val = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
@@ -224,7 +269,8 @@ export const Admin: React.FC = () => {
                 {editingAttr.type === AttributeType.DIMENSION_BLOCK && (
                   <input
                     placeholder="Fields (e.g. Length,Width,Depth)"
-                    className="p-2.5 border border-slate-300 rounded-lg col-span-2 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                    aria-label="Dimension fields, comma separated"
+                    className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 col-span-2 focus:border-blue-500 focus:ring-blue-500/20 transition"
                     value={editingAttr.dimensionFields?.join(', ') || ''}
                     onChange={e => {
                       const val = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
@@ -235,37 +281,38 @@ export const Admin: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 <button onClick={saveAttribute} className="btn-success text-white px-4 py-1.5 rounded-lg transition">Save</button>
-                <button onClick={() => setEditingAttr(null)} className="text-slate-600 hover:text-slate-800 transition">Cancel</button>
+                <button onClick={() => setEditingAttr(null)} className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition">Cancel</button>
               </div>
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-premium border border-slate-200/60 overflow-x-auto">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-premium border border-slate-200/60 dark:border-slate-700/60 overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-200/60">
+              <thead className="bg-slate-50/80 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200/60 dark:border-slate-700/60">
                 <tr>
-                  <th className="p-3 text-xs uppercase tracking-wider">Order</th>
-                  <th className="p-3 text-xs uppercase tracking-wider">Name</th>
-                  <th className="p-3 text-xs uppercase tracking-wider">Type</th>
-                  <th className="p-3 text-xs uppercase tracking-wider">Mandatory</th>
-                  <th className="p-3 text-xs uppercase tracking-wider">In Desc.</th>
-                  <th className="p-3 text-xs uppercase tracking-wider">Actions</th>
+                  <th scope="col" className="p-3 text-xs uppercase tracking-wider">Order</th>
+                  <th scope="col" className="p-3 text-xs uppercase tracking-wider">Name</th>
+                  <th scope="col" className="p-3 text-xs uppercase tracking-wider">Type</th>
+                  <th scope="col" className="p-3 text-xs uppercase tracking-wider">Mandatory</th>
+                  <th scope="col" className="p-3 text-xs uppercase tracking-wider">In Desc.</th>
+                  <th scope="col" className="p-3 text-xs uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {[...attributes].sort((a, b) => a.descriptionOrder - b.descriptionOrder).map(attr => (
                   <tr key={attr.id} className="table-row-hover">
-                    <td className="p-3 font-mono text-slate-600">{attr.descriptionOrder}</td>
-                    <td className="p-3 font-medium text-slate-900">{attr.name}</td>
-                    <td className="p-3 text-slate-600">{attr.type}</td>
+                    <td className="p-3 font-mono text-slate-600 dark:text-slate-400">{attr.descriptionOrder}</td>
+                    <td className="p-3 font-medium text-slate-900 dark:text-slate-100">{attr.name}</td>
+                    <td className="p-3 text-slate-600 dark:text-slate-400">{attr.type}</td>
                     <td className="p-3 text-center">{attr.mandatory ? <span className="text-emerald-600 font-medium">Yes</span> : <span className="text-slate-400">-</span>}</td>
                     <td className="p-3 text-center">{attr.includeInAutoDescription ? <span className="text-emerald-600 font-medium">Yes</span> : <span className="text-slate-400">-</span>}</td>
                     <td className="p-3 flex gap-2">
-                      <button onClick={() => setEditingAttr(attr)} className="text-blue-600 hover:bg-blue-50 p-1 rounded transition"><Edit size={16} strokeWidth={1.75} /></button>
+                      <button onClick={() => setEditingAttr(attr)} className="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 p-1 rounded transition" aria-label={`Edit ${attr.name}`}><Edit size={16} strokeWidth={1.75} /></button>
                       <button
                         onClick={() => confirmDelete(attr.id, 'attribute')}
-                        className={`p-1 rounded transition ${confirmDeleteId === attr.id ? 'bg-rose-600 text-white' : 'text-rose-600 hover:bg-rose-50'}`}
+                        className={`p-1 rounded transition ${confirmDeleteId === attr.id ? 'bg-rose-600 text-white' : 'text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30'}`}
                         title={confirmDeleteId === attr.id ? 'Click again to confirm' : 'Delete'}
+                        aria-label={confirmDeleteId === attr.id ? `Confirm delete ${attr.name}` : `Delete ${attr.name}`}
                       >
                         <Trash2 size={16} strokeWidth={1.75} />
                       </button>
@@ -280,7 +327,7 @@ export const Admin: React.FC = () => {
 
       {/* --- PRIORITIES TAB --- */}
       {activeTab === 'priorities' && (
-        <div className="space-y-4">
+        <div role="tabpanel" id="tabpanel-priorities" aria-labelledby="tab-priorities" tabIndex={0} className="space-y-4">
           <div className="flex justify-end">
             <button
               onClick={() => setEditingPrio({})}
@@ -291,30 +338,30 @@ export const Admin: React.FC = () => {
           </div>
 
           {editingPrio && (
-            <div className="bg-slate-50 p-5 rounded-xl border border-slate-200/60 space-y-4 shadow-premium">
-              <h4 className="font-bold text-slate-700">{editingPrio.id ? 'Edit' : 'New'} Priority</h4>
+            <div className="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 space-y-4 shadow-premium">
+              <h4 className="font-bold text-slate-700 dark:text-slate-300">{editingPrio.id ? 'Edit' : 'New'} Priority</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 md:col-span-1">
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">Priority Name</label>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Priority Name</label>
                   <input
-                    className="p-2.5 border border-slate-300 rounded-lg w-full mt-1 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                    className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 w-full mt-1 focus:border-blue-500 focus:ring-blue-500/20 transition"
                     value={editingPrio.name || ''}
                     onChange={e => setEditingPrio({ ...editingPrio, name: e.target.value })}
                   />
                 </div>
                 <div className="col-span-2 md:col-span-1">
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">SLA (Hours)</label>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">SLA (Hours)</label>
                   <input
                     type="number"
-                    className="p-2.5 border border-slate-300 rounded-lg w-full mt-1 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                    className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 w-full mt-1 focus:border-blue-500 focus:ring-blue-500/20 transition"
                     value={editingPrio.slaHours || 24}
                     onChange={e => setEditingPrio({ ...editingPrio, slaHours: parseInt(e.target.value) || 24 })}
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">Guidance Text (User Facing)</label>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Guidance Text (User Facing)</label>
                   <textarea
-                    className="p-2.5 border border-slate-300 rounded-lg w-full mt-1 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                    className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 w-full mt-1 focus:border-blue-500 focus:ring-blue-500/20 transition"
                     rows={2}
                     value={editingPrio.description || ''}
                     onChange={e => setEditingPrio({ ...editingPrio, description: e.target.value })}
@@ -322,15 +369,15 @@ export const Admin: React.FC = () => {
                   />
                 </div>
                 <div className="col-span-2 flex items-center gap-6">
-                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                     <input type="checkbox" className="rounded text-blue-600 focus:ring-blue-500/20" checked={editingPrio.requiresApproval || false} onChange={e => setEditingPrio({ ...editingPrio, requiresApproval: e.target.checked })} />
                     Requires Manager Approval
                   </label>
-                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
                     Display Order:
                     <input
                       type="number"
-                      className="p-1.5 border border-slate-300 rounded-lg w-16 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                      className="p-1.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 w-16 focus:border-blue-500 focus:ring-blue-500/20 transition"
                       value={editingPrio.displayOrder || 0}
                       onChange={e => setEditingPrio({ ...editingPrio, displayOrder: parseInt(e.target.value) || 0 })}
                     />
@@ -339,38 +386,39 @@ export const Admin: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 <button onClick={savePriority} className="btn-success text-white px-4 py-1.5 rounded-lg transition">Save</button>
-                <button onClick={() => setEditingPrio(null)} className="text-slate-600 hover:text-slate-800 transition">Cancel</button>
+                <button onClick={() => setEditingPrio(null)} className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition">Cancel</button>
               </div>
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-premium border border-slate-200/60 overflow-x-auto">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-premium border border-slate-200/60 dark:border-slate-700/60 overflow-x-auto">
             <table className="w-full text-sm text-left min-w-[700px]">
-              <thead className="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-200/60">
+              <thead className="bg-slate-50/80 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200/60 dark:border-slate-700/60">
                 <tr>
-                  <th className="p-3 w-16 text-xs uppercase tracking-wider">Order</th>
-                  <th className="p-3 w-24 text-xs uppercase tracking-wider">Name</th>
-                  <th className="p-3 text-xs uppercase tracking-wider">Guidance Text</th>
-                  <th className="p-3 w-16 text-xs uppercase tracking-wider">SLA</th>
-                  <th className="p-3 w-24 text-center text-xs uppercase tracking-wider">Approval</th>
-                  <th className="p-3 w-24 text-xs uppercase tracking-wider">Actions</th>
+                  <th scope="col" className="p-3 w-16 text-xs uppercase tracking-wider">Order</th>
+                  <th scope="col" className="p-3 w-24 text-xs uppercase tracking-wider">Name</th>
+                  <th scope="col" className="p-3 text-xs uppercase tracking-wider">Guidance Text</th>
+                  <th scope="col" className="p-3 w-16 text-xs uppercase tracking-wider">SLA</th>
+                  <th scope="col" className="p-3 w-24 text-center text-xs uppercase tracking-wider">Approval</th>
+                  <th scope="col" className="p-3 w-24 text-xs uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {[...priorities].sort((a, b) => a.displayOrder - b.displayOrder).map(prio => (
                   <tr key={prio.id} className="table-row-hover">
-                    <td className="p-3 font-mono text-slate-600">{prio.displayOrder}</td>
-                    <td className="p-3 font-medium text-slate-900">{prio.name}</td>
-                    <td className="p-3 text-slate-500 italic text-xs">{prio.description}</td>
+                    <td className="p-3 font-mono text-slate-600 dark:text-slate-400">{prio.displayOrder}</td>
+                    <td className="p-3 font-medium text-slate-900 dark:text-slate-100">{prio.name}</td>
+                    <td className="p-3 text-slate-500 dark:text-slate-400 italic text-xs">{prio.description}</td>
                     <td className="p-3 font-semibold">{prio.slaHours}h</td>
                     <td className="p-3 text-center">{prio.requiresApproval ? <span className="text-rose-600 font-bold">Yes</span> : <span className="text-slate-400">No</span>}</td>
                     <td className="p-3">
                       <div className="flex gap-1">
-                        <button onClick={() => setEditingPrio(prio)} className="text-blue-600 hover:bg-blue-50 p-1 rounded transition" title="Edit"><Edit size={16} strokeWidth={1.75} /></button>
+                        <button onClick={() => setEditingPrio(prio)} className="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 p-1 rounded transition" title="Edit" aria-label={`Edit ${prio.name}`}><Edit size={16} strokeWidth={1.75} /></button>
                         <button
                           onClick={() => confirmDelete(prio.id, 'priority')}
-                          className={`p-1 rounded transition ${confirmDeleteId === prio.id ? 'bg-rose-600 text-white' : 'text-rose-600 hover:bg-rose-50'}`}
+                          className={`p-1 rounded transition ${confirmDeleteId === prio.id ? 'bg-rose-600 text-white' : 'text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30'}`}
                           title={confirmDeleteId === prio.id ? 'Click again to confirm' : 'Delete'}
+                          aria-label={confirmDeleteId === prio.id ? `Confirm delete ${prio.name}` : `Delete ${prio.name}`}
                         >
                           <Trash2 size={16} strokeWidth={1.75} />
                         </button>
@@ -386,48 +434,49 @@ export const Admin: React.FC = () => {
 
       {/* --- USERS TAB --- */}
       {activeTab === 'users' && (
-        <div className="space-y-6">
+        <div role="tabpanel" id="tabpanel-users" aria-labelledby="tab-users" tabIndex={0} className="space-y-6">
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-premium">
-              <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wide mb-1">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-premium">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wide mb-1">
                 <Users size={14} strokeWidth={1.75} /> Total Users
               </div>
-              <p className="text-2xl font-bold text-slate-800">{users.length}</p>
+              <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{users.length}</p>
             </div>
             {roleOptions.slice(0, 3).map(role => (
-              <div key={role} className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-premium">
-                <div className="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-1">{role}s</div>
-                <p className="text-2xl font-bold text-slate-800">{users.filter(u => u.role === role).length}</p>
+              <div key={role} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-premium">
+                <div className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wide mb-1">{role}s</div>
+                <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{users.filter(u => u.role === role).length}</p>
               </div>
             ))}
           </div>
 
-          <div className="bg-white rounded-xl shadow-premium border border-slate-200/60 overflow-hidden">
-            <div className="p-4 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between">
-              <h4 className="font-bold text-slate-700">Registered Users ({users.length})</h4>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-premium border border-slate-200/60 dark:border-slate-700/60 overflow-hidden">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-700/50 flex items-center justify-between">
+              <h4 className="font-bold text-slate-700 dark:text-slate-300">Registered Users ({users.length})</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-200/60">
+                <thead className="bg-slate-50/80 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200/60 dark:border-slate-700/60">
                   <tr>
-                    <th className="p-3 text-xs uppercase tracking-wider">Name</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Email</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Department</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Project</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Role</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Name</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Email</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Department</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Project</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Role</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {users.map(u => (
                     <tr key={u.id} className="table-row-hover">
-                      <td className="p-3 font-medium text-slate-900">{u.name}</td>
-                      <td className="p-3 text-slate-500">{u.email}</td>
-                      <td className="p-3 text-slate-500">{u.department}</td>
-                      <td className="p-3 text-slate-500">{u.projectName || u.projectNumber || '-'}</td>
+                      <td className="p-3 font-medium text-slate-900 dark:text-slate-100">{u.name}</td>
+                      <td className="p-3 text-slate-500 dark:text-slate-400">{u.email}</td>
+                      <td className="p-3 text-slate-500 dark:text-slate-400">{u.department}</td>
+                      <td className="p-3 text-slate-500 dark:text-slate-400">{u.projectName || u.projectNumber || '-'}</td>
                       <td className="p-3">
                         <select
-                          className="text-xs font-medium px-2 py-1 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 transition"
+                          aria-label={`Role for ${u.name}`}
+                          className="text-xs font-medium px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 transition"
                           value={u.role}
                           onChange={e => updateUserRole(u.id, e.target.value as Role)}
                         >
@@ -452,27 +501,28 @@ export const Admin: React.FC = () => {
 
       {/* --- INVITATIONS TAB --- */}
       {activeTab === 'invites' && (
-        <div className="space-y-6">
+        <div role="tabpanel" id="tabpanel-invites" aria-labelledby="tab-invites" tabIndex={0} className="space-y-6">
           {/* Create Invite */}
-          <div className="bg-gradient-to-r from-blue-50 to-slate-50 p-6 rounded-xl border border-blue-100/60">
+          <div className="bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-950/30 dark:to-slate-800 p-6 rounded-xl border border-blue-100/60 dark:border-blue-800/60">
             <div className="flex items-start gap-3 mb-4">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center shrink-0 shadow-md">
                 <Send size={18} className="text-white" strokeWidth={1.75} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-blue-900">Generate Invitation</h3>
-                <p className="text-blue-700 text-sm mt-0.5">Create an invite link for a new user. Links expire in 7 days.</p>
+                <h3 className="text-lg font-bold text-blue-900 dark:text-blue-300">Generate Invitation</h3>
+                <p className="text-blue-700 dark:text-blue-400 text-sm mt-0.5">Create an invite link for a new user. Links expire in 7 days.</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
-                <label className="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide">Email Address</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 uppercase tracking-wide">Email Address</label>
                 <div className="flex items-center gap-1.5">
                   <Mail size={14} className="text-slate-400" />
                   <input
                     type="email"
                     placeholder="user@company.com"
-                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    aria-label="Invite email address"
+                    className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 transition"
                     value={inviteEmail}
                     onChange={e => setInviteEmail(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleCreateInvite()}
@@ -480,11 +530,12 @@ export const Admin: React.FC = () => {
                 </div>
               </div>
               <div className="sm:w-48">
-                <label className="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide">Assigned Role</label>
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 uppercase tracking-wide">Assigned Role</label>
                 <div className="flex items-center gap-1.5">
                   <Shield size={14} className="text-slate-400" />
                   <select
-                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 transition"
+                    aria-label="Assigned role for invite"
+                    className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-blue-500/20 focus:border-blue-500 transition"
                     value={inviteRole}
                     onChange={e => setInviteRole(e.target.value as Role)}
                   >
@@ -499,8 +550,8 @@ export const Admin: React.FC = () => {
                   onClick={handleCreateInvite}
                   className="w-full sm:w-auto btn-primary text-white px-6 py-2 rounded-lg flex items-center justify-center gap-2 font-medium text-sm transition"
                 >
-                  <Link size={16} strokeWidth={1.75} />
-                  Generate & Copy
+                  <Send size={16} strokeWidth={1.75} />
+                  Generate & Send
                 </button>
               </div>
             </div>
@@ -508,23 +559,23 @@ export const Admin: React.FC = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-premium">
-              <div className="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-1">Total Invites</div>
-              <p className="text-2xl font-bold text-slate-800">{inviteStats.total}</p>
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-premium">
+              <div className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wide mb-1">Total Invites</div>
+              <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{inviteStats.total}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-premium">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-premium">
               <div className="flex items-center gap-1 text-amber-600 text-xs font-semibold uppercase tracking-wide mb-1">
                 <Clock size={12} /> Pending
               </div>
               <p className="text-2xl font-bold text-amber-600">{inviteStats.pending}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-premium">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-premium">
               <div className="flex items-center gap-1 text-emerald-600 text-xs font-semibold uppercase tracking-wide mb-1">
                 <CheckCircle size={12} /> Used
               </div>
               <p className="text-2xl font-bold text-emerald-600">{inviteStats.used}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-premium">
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-premium">
               <div className="flex items-center gap-1 text-rose-500 text-xs font-semibold uppercase tracking-wide mb-1">
                 <XCircle size={12} /> Expired
               </div>
@@ -533,23 +584,23 @@ export const Admin: React.FC = () => {
           </div>
 
           {/* Invites Table */}
-          <div className="bg-white rounded-xl shadow-premium border border-slate-200/60 overflow-hidden">
-            <div className="p-4 border-b border-slate-100 bg-slate-50/80">
-              <h4 className="font-bold text-slate-700">Invitation History</h4>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-premium border border-slate-200/60 dark:border-slate-700/60 overflow-hidden">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-700/50">
+              <h4 className="font-bold text-slate-700 dark:text-slate-300">Invitation History</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-200/60">
+                <thead className="bg-slate-50/80 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200/60 dark:border-slate-700/60">
                   <tr>
-                    <th className="p-3 text-xs uppercase tracking-wider">Email</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Role</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Status</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Created</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Expires</th>
-                    <th className="p-3 text-xs uppercase tracking-wider">Actions</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Email</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Role</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Status</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Created</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Expires</th>
+                    <th scope="col" className="p-3 text-xs uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                   {sortedInvites.map(inv => {
                     const isExpired = !inv.used && new Date(inv.expiresAt) <= new Date();
                     const statusLabel = inv.used ? 'Used' : isExpired ? 'Expired' : 'Pending';
@@ -561,7 +612,7 @@ export const Admin: React.FC = () => {
 
                     return (
                       <tr key={inv.id} className={`table-row-hover ${inv.used || isExpired ? 'opacity-60' : ''}`}>
-                        <td className="p-3 font-medium text-slate-900">{inv.email}</td>
+                        <td className="p-3 font-medium text-slate-900 dark:text-slate-100">{inv.email}</td>
                         <td className="p-3">
                           <span className="badge-refined bg-blue-50 text-blue-700 ring-1 ring-blue-600/10">
                             {inv.role || Role.REQUESTER}
@@ -572,21 +623,30 @@ export const Admin: React.FC = () => {
                             {statusLabel}
                           </span>
                         </td>
-                        <td className="p-3 text-slate-500">
+                        <td className="p-3 text-slate-500 dark:text-slate-400">
                           {new Date(inv.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="p-3 text-slate-500">
+                        <td className="p-3 text-slate-500 dark:text-slate-400">
                           {new Date(inv.expiresAt).toLocaleDateString()}
                         </td>
                         <td className="p-3">
                           {!inv.used && !isExpired && (
-                            <button
-                              onClick={() => copyInviteLink(inv.token)}
-                              className="text-blue-600 hover:bg-blue-50 p-1 rounded flex items-center gap-1 text-xs transition"
-                              title="Copy invite link"
-                            >
-                              <Copy size={14} /> Copy Link
-                            </button>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => sendInviteEmail(inv.email, inv.token)}
+                                className="text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 p-1 rounded flex items-center gap-1 text-xs transition"
+                                title="Send invite email"
+                              >
+                                <Mail size={14} /> Email
+                              </button>
+                              <button
+                                onClick={() => copyInviteLink(inv.token)}
+                                className="text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 p-1 rounded flex items-center gap-1 text-xs transition"
+                                title="Copy invite link"
+                              >
+                                <Copy size={14} /> Copy
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>

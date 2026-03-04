@@ -265,24 +265,30 @@ export const NewRequest: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/')} className="p-2 hover:bg-slate-200 rounded-full transition">
-            <ArrowLeft size={20} strokeWidth={1.75} />
+          <button onClick={() => navigate('/')} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition">
+            <ArrowLeft size={20} strokeWidth={1.75} className="text-slate-700 dark:text-slate-300" />
           </button>
-          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">{requestId ? 'Edit & Resubmit Request' : 'New Request'}</h2>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">{requestId ? 'Edit & Resubmit Request' : 'New Request'}</h2>
         </div>
-        <div className="text-sm text-slate-500 font-medium">Step {step} of {TOTAL_STEPS}</div>
+        <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">Step {step} of {TOTAL_STEPS}</div>
       </div>
 
       {/* Step Indicator */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" role="list" aria-label="Request form steps">
         {stepLabels.map((label, i) => {
           const stepNum = i + 1;
           const isActive = step === stepNum;
           const isCompleted = step > stepNum || (stepNum === 1 && dbChecked);
           return (
-            <div key={label} className="flex-1">
-              <div className={`h-2 rounded-full transition-all ${isCompleted ? 'step-completed' : isActive ? 'step-active' : 'bg-slate-200'}`} />
-              <p className={`text-xs mt-1 text-center font-medium ${isActive ? 'text-blue-600' : isCompleted ? 'text-emerald-600' : 'text-slate-400'}`}>
+            <div
+              key={label}
+              className="flex-1"
+              role="listitem"
+              aria-current={isActive ? 'step' : undefined}
+              aria-label={`Step ${stepNum}: ${label} - ${isActive ? 'current' : isCompleted ? 'completed' : 'upcoming'}`}
+            >
+              <div className={`h-2 rounded-full transition-all ${isCompleted ? 'step-completed' : isActive ? 'step-active' : 'bg-slate-200 dark:bg-slate-700'}`} />
+              <p className={`text-xs mt-1 text-center font-medium ${isActive ? 'text-blue-600 dark:text-blue-400' : isCompleted ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
                 {label}
               </p>
             </div>
@@ -292,34 +298,34 @@ export const NewRequest: React.FC = () => {
 
       {/* Validation Errors */}
       {validationErrors.length > 0 && (
-        <div className="bg-rose-50 border border-rose-200/60 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-rose-800 mb-2">Please fix the following errors:</h4>
-          <ul className="list-disc list-inside text-sm text-rose-700 space-y-1">
+        <div id="validation-errors" role="alert" className="bg-rose-50 dark:bg-rose-900/30 border border-rose-200/60 dark:border-rose-700/60 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-rose-800 dark:text-rose-300 mb-2">Please fix the following errors:</h4>
+          <ul className="list-disc list-inside text-sm text-rose-700 dark:text-rose-400 space-y-1">
             {validationErrors.map((err, i) => <li key={i}>{err}</li>)}
           </ul>
         </div>
       )}
 
-      <div className="bg-white p-8 rounded-xl shadow-premium-md border border-slate-200/60">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-premium-md border border-slate-200/60 dark:border-slate-700/60">
 
         {/* ====== STEP 1: Database Verification ====== */}
         {step === 1 && (
           <div className="space-y-6 text-center py-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center mx-auto">
-              <AlertTriangle size={32} className="text-amber-500" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/40 dark:to-amber-800/20 flex items-center justify-center mx-auto">
+              <AlertTriangle size={32} className="text-amber-500 dark:text-amber-400" />
             </div>
-            <h3 className="text-xl font-bold text-slate-800">Database Verification</h3>
-            <p className="text-slate-500 max-w-lg mx-auto">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Database Verification</h3>
+            <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
               Before submitting a request, you must verify that this item or service code does not already exist in the Oracle ERP database.
             </p>
 
             {!dbChecked ? (
-              <div className="bg-amber-50 border border-amber-200/60 rounded-xl p-6 max-w-md mx-auto">
-                <p className="text-amber-800 font-medium mb-4">Have you checked the existing Oracle ERP database for this item code?</p>
+              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200/60 dark:border-amber-700/60 rounded-xl p-6 max-w-md mx-auto">
+                <p className="text-amber-800 dark:text-amber-300 font-medium mb-4">Have you checked the existing Oracle ERP database for this item code?</p>
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={() => addToast('You must check the Oracle ERP database before proceeding. Please verify the code does not already exist.', 'warning')}
-                    className="px-6 py-3 border border-slate-300 rounded-lg hover:bg-slate-50 font-medium text-slate-700 transition"
+                    className="px-6 py-3 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium text-slate-700 dark:text-slate-300 transition"
                   >
                     No, I haven't
                   </button>
@@ -332,9 +338,9 @@ export const NewRequest: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="bg-emerald-50 border border-emerald-200/60 rounded-xl p-6 max-w-md mx-auto">
-                <CheckCircle size={32} className="mx-auto text-emerald-600 mb-2" />
-                <p className="text-emerald-800 font-medium">Database verification confirmed.</p>
+              <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200/60 dark:border-emerald-700/60 rounded-xl p-6 max-w-md mx-auto">
+                <CheckCircle size={32} className="mx-auto text-emerald-600 dark:text-emerald-400 mb-2" />
+                <p className="text-emerald-800 dark:text-emerald-300 font-medium">Database verification confirmed.</p>
                 <button
                   onClick={() => setStep(2)}
                   className="mt-4 btn-primary px-8 py-3 text-white rounded-lg font-medium flex items-center gap-2 mx-auto transition"
@@ -349,60 +355,62 @@ export const NewRequest: React.FC = () => {
         {/* ====== STEP 2: Request Classification & Type ====== */}
         {step === 2 && (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-slate-700">Request Type & Classification</h3>
+            <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Request Type & Classification</h3>
 
             {/* Request Type */}
             <div>
-              <label className="block text-sm font-medium text-slate-600 mb-3">Request Type</label>
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">Request Type</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
                   onClick={() => setFormData({ ...formData, requestType: 'New', existingCode: '' })}
                   className={`p-5 border-2 rounded-xl text-left transition-all ${
-                    formData.requestType === 'New' ? 'border-blue-600 bg-blue-50 shadow-premium ring-1 ring-blue-600/10' : 'border-slate-200 hover:border-slate-400'
+                    formData.requestType === 'New' ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-premium ring-1 ring-blue-600/10 dark:ring-blue-500/20' : 'border-slate-200 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.requestType === 'New' ? 'border-blue-600' : 'border-slate-300'}`}>
-                      {formData.requestType === 'New' && <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />}
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.requestType === 'New' ? 'border-blue-600 dark:border-blue-400' : 'border-slate-300 dark:border-slate-500'}`}>
+                      {formData.requestType === 'New' && <div className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
                     </div>
-                    <span className="font-bold text-lg">New Item</span>
+                    <span className="font-bold text-lg text-slate-900 dark:text-slate-100">New Item</span>
                   </div>
-                  <p className="text-sm text-slate-500 ml-8">Code does not exist in the system.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 ml-8">Code does not exist in the system.</p>
                 </button>
 
                 <button
                   onClick={() => setFormData({ ...formData, requestType: 'Amendment' })}
                   className={`p-5 border-2 rounded-xl text-left transition-all ${
-                    formData.requestType === 'Amendment' ? 'border-blue-600 bg-blue-50 shadow-premium ring-1 ring-blue-600/10' : 'border-slate-200 hover:border-slate-400'
+                    formData.requestType === 'Amendment' ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-premium ring-1 ring-blue-600/10 dark:ring-blue-500/20' : 'border-slate-200 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                   }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.requestType === 'Amendment' ? 'border-blue-600' : 'border-slate-300'}`}>
-                      {formData.requestType === 'Amendment' && <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />}
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.requestType === 'Amendment' ? 'border-blue-600 dark:border-blue-400' : 'border-slate-300 dark:border-slate-500'}`}>
+                      {formData.requestType === 'Amendment' && <div className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
                     </div>
-                    <span className="font-bold text-lg">Amendment</span>
+                    <span className="font-bold text-lg text-slate-900 dark:text-slate-100">Amendment</span>
                   </div>
-                  <p className="text-sm text-slate-500 ml-8">Code exists but description requires modification.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 ml-8">Code exists but description requires modification.</p>
                 </button>
               </div>
             </div>
 
             {formData.requestType === 'Amendment' && (
-              <div className="bg-amber-50 border border-amber-200/60 rounded-xl p-4">
-                <label className="block text-sm font-medium text-amber-800 mb-1">Existing Oracle Code <span className="text-red-500">*</span></label>
+              <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200/60 dark:border-amber-700/60 rounded-xl p-4">
+                <label className="block text-sm font-medium text-amber-800 dark:text-amber-300 mb-1">Existing Oracle Code <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  className="w-full rounded-lg border-amber-200 shadow-sm border p-2.5 focus:border-amber-500 focus:ring-amber-500/20 transition"
+                  className="w-full rounded-lg border-amber-200 dark:border-amber-700 shadow-sm border p-2.5 focus:border-amber-500 focus:ring-amber-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                   value={formData.existingCode || ''}
                   onChange={(e) => setFormData({ ...formData, existingCode: e.target.value })}
                   placeholder="Enter the existing Oracle code..."
+                  aria-required="true"
+                  aria-label="Existing Oracle Code"
                 />
               </div>
             )}
 
             {/* Classification */}
-            <div className="pt-4 border-t border-slate-100">
-              <label className="block text-sm font-medium text-slate-600 mb-3">Classification</label>
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
+              <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">Classification</label>
               <div className="flex gap-4">
                 {[Classification.ITEM, Classification.SERVICE].map(c => (
                   <button
@@ -416,8 +424,8 @@ export const NewRequest: React.FC = () => {
                     })}
                     className={`flex-1 py-3.5 border-2 rounded-lg text-center font-semibold transition-all ${
                       formData.classification === c
-                        ? 'bg-slate-800 text-white border-slate-800 shadow-premium'
-                        : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'
+                        ? 'bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-800 border-slate-800 dark:border-slate-200 shadow-premium'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                     }`}
                   >
                     {c === Classification.ITEM ? 'Material (Item)' : 'Service'}
@@ -429,7 +437,7 @@ export const NewRequest: React.FC = () => {
             {/* Sub-Type Selection */}
             {formData.classification === Classification.ITEM && (
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-3">Material Sub-Type</label>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">Material Sub-Type</label>
                 <div className="grid grid-cols-3 gap-3">
                   {Object.values(MaterialSubType).map(st => (
                     <button
@@ -437,8 +445,8 @@ export const NewRequest: React.FC = () => {
                       onClick={() => setFormData({ ...formData, materialSubType: st })}
                       className={`p-3 border-2 rounded-lg text-center text-sm font-medium transition-all ${
                         formData.materialSubType === st
-                          ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-600/10'
-                          : 'border-slate-200 text-slate-600 hover:border-slate-400'
+                          ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 ring-1 ring-blue-600/10 dark:ring-blue-500/20'
+                          : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
                       }`}
                     >
                       {st}
@@ -450,7 +458,7 @@ export const NewRequest: React.FC = () => {
 
             {formData.classification === Classification.SERVICE && (
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-3">Service Sub-Type <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">Service Sub-Type <span className="text-red-500">*</span></label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {Object.values(ServiceSubType).map(st => (
                     <button
@@ -458,8 +466,8 @@ export const NewRequest: React.FC = () => {
                       onClick={() => setFormData({ ...formData, serviceSubType: st })}
                       className={`p-3 border-2 rounded-lg text-center text-sm font-medium transition-all ${
                         formData.serviceSubType === st
-                          ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-600/10'
-                          : 'border-slate-200 text-slate-600 hover:border-slate-400'
+                          ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 ring-1 ring-blue-600/10 dark:ring-blue-500/20'
+                          : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
                       }`}
                     >
                       {st}
@@ -470,11 +478,11 @@ export const NewRequest: React.FC = () => {
             )}
 
             {/* Navigation */}
-            <div className="flex justify-between pt-6 border-t border-slate-100">
-              <button onClick={handleBack} className="text-slate-600 hover:text-slate-800 flex items-center gap-1 transition">
+            <div className="flex justify-between pt-6 border-t border-slate-100 dark:border-slate-700">
+              <button onClick={handleBack} className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1 transition" aria-label="Go back to Step 1: Database Check">
                 <ArrowLeft size={16} /> Back
               </button>
-              <button onClick={handleNext} className="btn-primary text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition">
+              <button onClick={handleNext} className="btn-primary text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition" aria-label="Go to Step 3: Details & Attributes">
                 Next <ArrowRight size={16} />
               </button>
             </div>
@@ -484,15 +492,15 @@ export const NewRequest: React.FC = () => {
         {/* ====== STEP 3: Core Details & Attributes ====== */}
         {step === 3 && (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-slate-700">Core Details & Specifications</h3>
+            <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Core Details & Specifications</h3>
 
             {/* Auto-Description Preview */}
-            <div className="bg-blue-50/50 border border-blue-100/60 p-4 rounded-xl">
+            <div className="bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100/60 dark:border-blue-800/60 p-4 rounded-xl">
               <div className="flex items-center gap-2 mb-1">
-                <Eye size={14} className="text-blue-500" />
-                <h4 className="text-xs uppercase font-bold text-blue-500 tracking-wide">Auto-Generated Description Preview</h4>
+                <Eye size={14} className="text-blue-500 dark:text-blue-400" />
+                <h4 className="text-xs uppercase font-bold text-blue-500 dark:text-blue-400 tracking-wide">Auto-Generated Description Preview</h4>
               </div>
-              <p className="font-mono text-base text-blue-900 break-all min-h-[24px]">
+              <p className="font-mono text-base text-blue-900 dark:text-blue-200 break-all min-h-[24px]">
                 {generatedDescription || '(Complete attributes below to generate)'}
               </p>
             </div>
@@ -500,32 +508,36 @@ export const NewRequest: React.FC = () => {
             {/* Core Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Request Title <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Request Title <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  className="w-full rounded-lg border-slate-300 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                  className="w-full rounded-lg border-slate-300 dark:border-slate-600 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                   value={formData.title || ''}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g. Ball Bearing SKF 6205-2RS"
+                  aria-required="true"
+                  aria-describedby={validationErrors.length > 0 ? 'validation-errors' : undefined}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Project Code <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Project Code <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  className="w-full rounded-lg border-slate-300 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                  className="w-full rounded-lg border-slate-300 dark:border-slate-600 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                   value={formData.project || ''}
                   onChange={(e) => setFormData({ ...formData, project: e.target.value })}
                   placeholder="e.g. PRJ-2026-001"
+                  aria-required="true"
+                  aria-describedby={validationErrors.length > 0 ? 'validation-errors' : undefined}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">UNSPSC Commodity Code</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UNSPSC Commodity Code</label>
                 <input
                   type="text"
-                  className="w-full rounded-lg border-slate-300 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                  className="w-full rounded-lg border-slate-300 dark:border-slate-600 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                   value={formData.unspscCode || ''}
                   onChange={(e) => setFormData({ ...formData, unspscCode: e.target.value })}
                   placeholder="e.g. 31171500"
@@ -533,10 +545,10 @@ export const NewRequest: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Resource Code</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Resource Code</label>
                 <input
                   type="text"
-                  className="w-full rounded-lg border-slate-300 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                  className="w-full rounded-lg border-slate-300 dark:border-slate-600 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                   value={formData.resourceCode || ''}
                   onChange={(e) => setFormData({ ...formData, resourceCode: e.target.value })}
                   placeholder="Optional"
@@ -544,15 +556,17 @@ export const NewRequest: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Unit of Measurement (UOM)
                   {formData.classification === Classification.SERVICE && <span className="text-red-500"> *</span>}
                 </label>
                 {formData.classification === Classification.SERVICE ? (
                   <select
-                    className="w-full rounded-lg border-slate-300 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                    className="w-full rounded-lg border-slate-300 dark:border-slate-600 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200"
                     value={formData.uom || ''}
                     onChange={(e) => setFormData({ ...formData, uom: e.target.value })}
+                    aria-required="true"
+                    aria-label="Unit of Measurement"
                   >
                     <option value="">Select UOM...</option>
                     {SERVICE_UOM_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
@@ -560,7 +574,7 @@ export const NewRequest: React.FC = () => {
                 ) : (
                   <input
                     type="text"
-                    className="w-full rounded-lg border-slate-300 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition"
+                    className="w-full rounded-lg border-slate-300 dark:border-slate-600 shadow-sm border p-2.5 focus:border-blue-500 focus:ring-blue-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                     value={formData.uom || ''}
                     onChange={(e) => setFormData({ ...formData, uom: e.target.value })}
                     placeholder="e.g. Each, Set, Box, Meter"
@@ -570,8 +584,8 @@ export const NewRequest: React.FC = () => {
             </div>
 
             {/* Dynamic Attributes */}
-            <div className="pt-4 border-t border-slate-100">
-              <h4 className="text-sm font-semibold text-slate-600 mb-4 uppercase tracking-wide">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
+              <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-4 uppercase tracking-wide">
                 {formData.classification === Classification.ITEM ? 'Material Attributes' : 'Service Attributes'}
               </h4>
               <DynamicForm
@@ -582,31 +596,32 @@ export const NewRequest: React.FC = () => {
             </div>
 
             {/* Attachments */}
-            <div className="pt-4 border-t border-slate-100">
-              <h4 className="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
+              <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3 flex items-center gap-2">
                 <Paperclip size={14} strokeWidth={1.75} /> Attachments
               </h4>
               <div className="flex items-center gap-4">
-                <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg flex items-center gap-2 transition border border-slate-200/60">
+                <label className="cursor-pointer bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-lg flex items-center gap-2 transition border border-slate-200/60 dark:border-slate-600">
                   <FileText size={16} strokeWidth={1.75} />
                   <span className="text-sm font-medium">Choose File</span>
-                  <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileUpload} />
+                  <input type="file" className="hidden" accept="image/*,.pdf" onChange={handleFileUpload} aria-label="Attach file" />
                 </label>
-                <span className="text-xs text-slate-500">Max 500KB per file (Images, PDF)</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">Max 500KB per file (Images, PDF)</span>
               </div>
 
               {formData.attachments && formData.attachments.length > 0 && (
                 <ul className="mt-3 space-y-2">
                   {formData.attachments.map(att => (
-                    <li key={att.id} className="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border border-slate-200/60 text-sm">
+                    <li key={att.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-600 text-sm">
                       <div className="flex items-center gap-2 overflow-hidden">
-                        <FileText size={14} className="text-slate-400 shrink-0" />
-                        <span className="truncate max-w-[200px]">{att.name}</span>
-                        <span className="text-xs text-slate-400">({Math.round(att.size / 1024)} KB)</span>
+                        <FileText size={14} className="text-slate-400 dark:text-slate-500 shrink-0" />
+                        <span className="truncate max-w-[200px] text-slate-700 dark:text-slate-300">{att.name}</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">({Math.round(att.size / 1024)} KB)</span>
                       </div>
                       <button
                         onClick={() => setFormData(prev => ({ ...prev, attachments: prev.attachments?.filter(a => a.id !== att.id) }))}
-                        className="text-rose-500 hover:text-rose-700 p-1 transition"
+                        className="text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 p-1 transition"
+                        aria-label={`Remove attachment ${att.name}`}
                       >
                         <X size={14} />
                       </button>
@@ -617,11 +632,11 @@ export const NewRequest: React.FC = () => {
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-between pt-6 border-t border-slate-100">
-              <button onClick={handleBack} className="text-slate-600 hover:text-slate-800 flex items-center gap-1 transition">
+            <div className="flex justify-between pt-6 border-t border-slate-100 dark:border-slate-700">
+              <button onClick={handleBack} className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1 transition" aria-label="Go back to Step 2: Classification">
                 <ArrowLeft size={16} /> Back
               </button>
-              <button onClick={handleNext} className="btn-primary text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition">
+              <button onClick={handleNext} className="btn-primary text-white px-6 py-2.5 rounded-lg flex items-center gap-2 transition" aria-label="Go to Step 4: Priority & Review">
                 Next <ArrowRight size={16} />
               </button>
             </div>
@@ -631,11 +646,11 @@ export const NewRequest: React.FC = () => {
         {/* ====== STEP 4: Urgency, Priority & Review ====== */}
         {step === 4 && (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-slate-700">Urgency, Priority & Final Review</h3>
+            <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Urgency, Priority & Final Review</h3>
 
             {/* Priority Selection */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">Priority Level <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Priority Level <span className="text-red-500">*</span></label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {priorities.filter(p => p.active).sort((a, b) => a.displayOrder - b.displayOrder).map(p => (
                   <button
@@ -644,17 +659,17 @@ export const NewRequest: React.FC = () => {
                     className={`p-4 border-2 rounded-xl text-left transition-all ${
                       formData.priorityId === p.id
                         ? p.name === 'Critical'
-                          ? 'border-rose-500 bg-rose-50 shadow-premium ring-1 ring-rose-500/20'
+                          ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/30 shadow-premium ring-1 ring-rose-500/20'
                           : p.name === 'Urgent'
-                            ? 'border-amber-500 bg-amber-50 shadow-premium ring-1 ring-amber-500/20'
-                            : 'border-emerald-500 bg-emerald-50 shadow-premium ring-1 ring-emerald-500/20'
-                        : 'border-slate-200 hover:border-slate-300'
+                            ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30 shadow-premium ring-1 ring-amber-500/20'
+                            : 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 shadow-premium ring-1 ring-emerald-500/20'
+                        : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
                     }`}
                   >
-                    <div className="font-bold text-base mb-1">{p.name}</div>
-                    <p className="text-xs text-slate-500">{p.description}</p>
+                    <div className="font-bold text-base mb-1 text-slate-900 dark:text-slate-100">{p.name}</div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{p.description}</p>
                     {p.slaHours && (
-                      <p className="text-xs font-medium mt-2 text-slate-600">SLA: {p.slaHours}h</p>
+                      <p className="text-xs font-medium mt-2 text-slate-600 dark:text-slate-400">SLA: {p.slaHours}h</p>
                     )}
                   </button>
                 ))}
@@ -663,44 +678,47 @@ export const NewRequest: React.FC = () => {
 
             {/* Critical Priority - Approval Fields */}
             {selectedPriority?.requiresApproval && (
-              <div className="bg-rose-50 border border-rose-200/60 rounded-xl p-5 space-y-4">
-                <div className="flex items-center gap-2 text-rose-800">
+              <div className="bg-rose-50 dark:bg-rose-900/30 border border-rose-200/60 dark:border-rose-700/60 rounded-xl p-5 space-y-4">
+                <div className="flex items-center gap-2 text-rose-800 dark:text-rose-300">
                   <AlertTriangle size={18} strokeWidth={1.75} />
                   <span className="font-semibold">Critical Priority - Manager Approval Required</span>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-rose-800 mb-1">Justification <span className="text-rose-600">*</span></label>
+                  <label className="block text-sm font-medium text-rose-800 dark:text-rose-300 mb-1">Justification <span className="text-rose-600">*</span></label>
                   <textarea
-                    className="w-full rounded-lg border-rose-200 shadow-sm border p-3 focus:border-rose-500 focus:ring-rose-500/20 transition"
+                    className="w-full rounded-lg border-rose-200 dark:border-rose-700 shadow-sm border p-3 focus:border-rose-500 focus:ring-rose-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                     rows={3}
                     value={formData.justification || ''}
                     onChange={(e) => setFormData({ ...formData, justification: e.target.value })}
                     placeholder="Explain why this request is critical and requires same-day processing..."
+                    aria-required="true"
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-rose-800 mb-1">Approving Manager Name <span className="text-rose-600">*</span></label>
+                    <label className="block text-sm font-medium text-rose-800 dark:text-rose-300 mb-1">Approving Manager Name <span className="text-rose-600">*</span></label>
                     <input
                       type="text"
-                      className="w-full rounded-lg border-rose-200 shadow-sm border p-2.5 focus:border-rose-500 focus:ring-rose-500/20 transition"
+                      className="w-full rounded-lg border-rose-200 dark:border-rose-700 shadow-sm border p-2.5 focus:border-rose-500 focus:ring-rose-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                       value={formData.managerName || ''}
                       onChange={(e) => setFormData({ ...formData, managerName: e.target.value })}
                       placeholder="e.g. John Doe"
+                      aria-required="true"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-rose-800 mb-1">Approving Manager Email <span className="text-rose-600">*</span></label>
+                    <label className="block text-sm font-medium text-rose-800 dark:text-rose-300 mb-1">Approving Manager Email <span className="text-rose-600">*</span></label>
                     <input
                       type="email"
-                      className="w-full rounded-lg border-rose-200 shadow-sm border p-2.5 focus:border-rose-500 focus:ring-rose-500/20 transition"
+                      className="w-full rounded-lg border-rose-200 dark:border-rose-700 shadow-sm border p-2.5 focus:border-rose-500 focus:ring-rose-500/20 transition bg-white dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
                       value={formData.managerEmail || ''}
                       onChange={(e) => setFormData({ ...formData, managerEmail: e.target.value })}
                       placeholder="e.g. john@company.com"
+                      aria-required="true"
                     />
                   </div>
                 </div>
-                <p className="text-xs text-rose-600 italic">
+                <p className="text-xs text-rose-600 dark:text-rose-400 italic">
                   This request will require manager approval before it reaches the coding team.
                   {selectedPriority.slaHours && ` Must be submitted at least ${selectedPriority.slaHours} hours before end of business.`}
                 </p>
@@ -708,86 +726,87 @@ export const NewRequest: React.FC = () => {
             )}
 
             {/* Review Summary */}
-            <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-5 mt-4">
-              <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-700/60 rounded-xl p-5 mt-4">
+              <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4 flex items-center gap-2">
                 <Eye size={16} strokeWidth={1.75} /> Request Summary
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <div className="flex justify-between py-2 border-b border-slate-200/60">
-                  <span className="text-slate-500">Request Type</span>
-                  <span className="font-medium text-slate-800">{formData.requestType}</span>
+                <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                  <span className="text-slate-500 dark:text-slate-400">Request Type</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200">{formData.requestType}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-200/60">
-                  <span className="text-slate-500">Classification</span>
-                  <span className="font-medium text-slate-800">{formData.classification}</span>
+                <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                  <span className="text-slate-500 dark:text-slate-400">Classification</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200">{formData.classification}</span>
                 </div>
                 {formData.classification === Classification.ITEM && formData.materialSubType && (
-                  <div className="flex justify-between py-2 border-b border-slate-200/60">
-                    <span className="text-slate-500">Material Sub-Type</span>
-                    <span className="font-medium text-slate-800">{formData.materialSubType}</span>
+                  <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                    <span className="text-slate-500 dark:text-slate-400">Material Sub-Type</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{formData.materialSubType}</span>
                   </div>
                 )}
                 {formData.classification === Classification.SERVICE && formData.serviceSubType && (
-                  <div className="flex justify-between py-2 border-b border-slate-200/60">
-                    <span className="text-slate-500">Service Sub-Type</span>
-                    <span className="font-medium text-slate-800">{formData.serviceSubType}</span>
+                  <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                    <span className="text-slate-500 dark:text-slate-400">Service Sub-Type</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{formData.serviceSubType}</span>
                   </div>
                 )}
                 {formData.existingCode && (
-                  <div className="flex justify-between py-2 border-b border-slate-200/60">
-                    <span className="text-slate-500">Existing Code</span>
-                    <span className="font-medium text-slate-800">{formData.existingCode}</span>
+                  <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                    <span className="text-slate-500 dark:text-slate-400">Existing Code</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{formData.existingCode}</span>
                   </div>
                 )}
-                <div className="flex justify-between py-2 border-b border-slate-200/60">
-                  <span className="text-slate-500">Title</span>
-                  <span className="font-medium text-slate-800 text-right max-w-[200px] truncate">{formData.title}</span>
+                <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                  <span className="text-slate-500 dark:text-slate-400">Title</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200 text-right max-w-[200px] truncate">{formData.title}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-200/60">
-                  <span className="text-slate-500">Project Code</span>
-                  <span className="font-medium text-slate-800">{formData.project}</span>
+                <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                  <span className="text-slate-500 dark:text-slate-400">Project Code</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200">{formData.project}</span>
                 </div>
                 {formData.unspscCode && (
-                  <div className="flex justify-between py-2 border-b border-slate-200/60">
-                    <span className="text-slate-500">UNSPSC Code</span>
-                    <span className="font-medium text-slate-800">{formData.unspscCode}</span>
+                  <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                    <span className="text-slate-500 dark:text-slate-400">UNSPSC Code</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{formData.unspscCode}</span>
                   </div>
                 )}
                 {formData.uom && (
-                  <div className="flex justify-between py-2 border-b border-slate-200/60">
-                    <span className="text-slate-500">UOM</span>
-                    <span className="font-medium text-slate-800">{formData.uom}</span>
+                  <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                    <span className="text-slate-500 dark:text-slate-400">UOM</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{formData.uom}</span>
                   </div>
                 )}
-                <div className="flex justify-between py-2 border-b border-slate-200/60">
-                  <span className="text-slate-500">Priority</span>
-                  <span className={`font-medium ${selectedPriority?.name === 'Critical' ? 'text-rose-600' : selectedPriority?.name === 'Urgent' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                  <span className="text-slate-500 dark:text-slate-400">Priority</span>
+                  <span className={`font-medium ${selectedPriority?.name === 'Critical' ? 'text-rose-600 dark:text-rose-400' : selectedPriority?.name === 'Urgent' ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                     {selectedPriority?.name || 'Not selected'}
                   </span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-200/60">
-                  <span className="text-slate-500">Attachments</span>
-                  <span className="font-medium text-slate-800">{formData.attachments?.length || 0} file(s)</span>
+                <div className="flex justify-between py-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                  <span className="text-slate-500 dark:text-slate-400">Attachments</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200">{formData.attachments?.length || 0} file(s)</span>
                 </div>
               </div>
 
               {generatedDescription && (
-                <div className="mt-4 bg-blue-50/50 border border-blue-100/60 rounded-xl p-3">
-                  <p className="text-xs uppercase font-bold text-blue-500 mb-1 tracking-wide">Auto-Generated Description</p>
-                  <p className="font-mono text-sm text-blue-900">{generatedDescription}</p>
+                <div className="mt-4 bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100/60 dark:border-blue-800/60 rounded-xl p-3">
+                  <p className="text-xs uppercase font-bold text-blue-500 dark:text-blue-400 mb-1 tracking-wide">Auto-Generated Description</p>
+                  <p className="font-mono text-sm text-blue-900 dark:text-blue-200">{generatedDescription}</p>
                 </div>
               )}
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-between pt-6 border-t border-slate-100">
-              <button onClick={handleBack} className="text-slate-600 hover:text-slate-800 flex items-center gap-1 transition">
+            <div className="flex justify-between pt-6 border-t border-slate-100 dark:border-slate-700">
+              <button onClick={handleBack} className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1 transition" aria-label="Go back to Step 3: Details & Attributes">
                 <ArrowLeft size={16} /> Back
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={!formData.priorityId}
-                className="btn-success text-white px-8 py-3 rounded-lg flex items-center gap-2 transition disabled:bg-slate-300 disabled:cursor-not-allowed font-medium"
+                className="btn-success text-white px-8 py-3 rounded-lg flex items-center gap-2 transition disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed font-medium"
+                aria-label={requestId ? 'Resubmit request' : 'Submit request'}
               >
                 <Send size={18} strokeWidth={1.75} />
                 {requestId ? 'Resubmit Request' : 'Submit Request'}
