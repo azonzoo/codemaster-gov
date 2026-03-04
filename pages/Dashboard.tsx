@@ -94,25 +94,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   const getStatusColor = (status: RequestStatus) => {
     switch (status) {
-      case RequestStatus.COMPLETED: return 'bg-green-100 text-green-800';
-      case RequestStatus.REJECTED: return 'bg-red-100 text-red-800';
-      case RequestStatus.RETURNED_FOR_CLARIFICATION: return 'bg-orange-100 text-orange-800';
-      case RequestStatus.PENDING_APPROVAL: return 'bg-yellow-100 text-yellow-800';
-      case RequestStatus.SUBMITTED_TO_POC: return 'bg-blue-100 text-blue-800';
-      case RequestStatus.UNDER_SPECIALIST_REVIEW: return 'bg-purple-100 text-purple-800';
-      case RequestStatus.UNDER_TECHNICAL_VALIDATION: return 'bg-cyan-100 text-cyan-800';
-      case RequestStatus.PENDING_ORACLE_CREATION: return 'bg-teal-100 text-teal-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case RequestStatus.COMPLETED: return 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/10';
+      case RequestStatus.REJECTED: return 'bg-rose-50 text-rose-700 ring-1 ring-rose-600/10';
+      case RequestStatus.RETURNED_FOR_CLARIFICATION: return 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/10';
+      case RequestStatus.PENDING_APPROVAL: return 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/10';
+      case RequestStatus.SUBMITTED_TO_POC: return 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/10';
+      case RequestStatus.UNDER_SPECIALIST_REVIEW: return 'bg-violet-50 text-violet-700 ring-1 ring-violet-600/10';
+      case RequestStatus.UNDER_TECHNICAL_VALIDATION: return 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-600/10';
+      case RequestStatus.PENDING_ORACLE_CREATION: return 'bg-teal-50 text-teal-700 ring-1 ring-teal-600/10';
+      default: return 'bg-slate-50 text-slate-700 ring-1 ring-slate-600/10';
     }
   };
 
   const getPriorityDisplay = (priorityId: string) => {
     const p = priorities.find(p => p.id === priorityId);
-    if (!p) return { name: 'Unknown', className: 'bg-gray-100 text-gray-800' };
+    if (!p) return { name: 'Unknown', className: 'bg-slate-50 text-slate-700 ring-1 ring-slate-600/10' };
     const ln = p.name.toLowerCase();
-    if (ln.includes('critical')) return { name: p.name, className: 'bg-red-100 text-red-800 border border-red-200' };
-    if (ln.includes('urgent')) return { name: p.name, className: 'bg-orange-100 text-orange-800 border border-orange-200' };
-    return { name: p.name, className: 'bg-blue-50 text-blue-800 border border-blue-100' };
+    if (ln.includes('critical')) return { name: p.name, className: 'bg-rose-50 text-rose-700 ring-1 ring-rose-600/10' };
+    if (ln.includes('urgent')) return { name: p.name, className: 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/10' };
+    return { name: p.name, className: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/10' };
   };
 
   // SLA Badge calculation
@@ -162,11 +162,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
+        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h2>
         {(currentUser.role === Role.REQUESTER || currentUser.role === Role.ADMIN) && (
           <button
             onClick={() => onNavigate('new-request')}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+            className="btn-primary text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-medium text-sm shadow-sm"
           >
             <FileText size={18} />
             Create Request
@@ -176,95 +176,95 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white p-5 rounded-xl shadow-premium border border-slate-200/60 card-accent-left hover:shadow-premium-md transition-shadow duration-200">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Clock size={24} /></div>
+            <div className="p-2.5 icon-container icon-container-blue"><Clock size={22} strokeWidth={1.75} /></div>
             <div>
-              <p className="text-sm text-gray-500">Active</p>
-              <p className="text-2xl font-bold text-gray-800">{kpis.active}</p>
+              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wide">Active</p>
+              <p className="text-2xl font-bold text-slate-900">{kpis.active}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white p-5 rounded-xl shadow-premium border border-slate-200/60 card-accent-left hover:shadow-premium-md transition-shadow duration-200">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-50 rounded-lg text-green-600"><CheckCircle size={24} /></div>
+            <div className="p-2.5 icon-container icon-container-emerald"><CheckCircle size={22} strokeWidth={1.75} /></div>
             <div>
-              <p className="text-sm text-gray-500">Completed</p>
-              <p className="text-2xl font-bold text-gray-800">{kpis.completed}</p>
+              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wide">Completed</p>
+              <p className="text-2xl font-bold text-slate-900">{kpis.completed}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white p-5 rounded-xl shadow-premium border border-slate-200/60 card-accent-left hover:shadow-premium-md transition-shadow duration-200">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-50 rounded-lg text-red-600"><AlertCircle size={24} /></div>
+            <div className="p-2.5 icon-container icon-container-rose"><AlertCircle size={22} strokeWidth={1.75} /></div>
             <div>
-              <p className="text-sm text-gray-500">Attention</p>
-              <p className="text-2xl font-bold text-gray-800">{kpis.attention}</p>
+              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wide">Attention</p>
+              <p className="text-2xl font-bold text-slate-900">{kpis.attention}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white p-5 rounded-xl shadow-premium border border-slate-200/60 card-accent-left hover:shadow-premium-md transition-shadow duration-200">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-50 rounded-lg text-amber-600"><AlertTriangle size={24} /></div>
+            <div className="p-2.5 icon-container icon-container-amber"><AlertTriangle size={22} strokeWidth={1.75} /></div>
             <div>
-              <p className="text-sm text-gray-500">SLA Breached</p>
-              <p className="text-2xl font-bold text-gray-800">{kpis.breached}</p>
+              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wide">SLA Breached</p>
+              <p className="text-2xl font-bold text-slate-900">{kpis.breached}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Request Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-premium border border-slate-200/60 overflow-hidden">
         {/* Filters Bar */}
-        <div className="p-4 border-b border-gray-200 space-y-3">
+        <div className="p-4 border-b border-slate-100 space-y-3">
           <div className="flex items-center gap-3 flex-wrap">
             {/* Search */}
             <div className="relative flex-1 min-w-[200px]">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search by ID, title, or project..."
-                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-indigo-400 focus:ring-1 focus:ring-indigo-200"
+                className="w-full pl-9 pr-4 py-2 text-sm rounded-lg input-premium"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <Filter size={14} className="text-gray-400" />
-              <select className="text-sm border-gray-300 rounded-md shadow-sm py-2 px-3" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+              <Filter size={14} className="text-slate-400" />
+              <select className="text-sm border-slate-200 rounded-md shadow-sm py-2 px-3" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
                 <option value="attention">Needs Attention</option>
                 <option value="completed">Completed</option>
               </select>
-              <select className="text-sm border-gray-300 rounded-md shadow-sm py-2 px-3" value={filterPriority} onChange={e => setFilterPriority(e.target.value)}>
+              <select className="text-sm border-slate-200 rounded-md shadow-sm py-2 px-3" value={filterPriority} onChange={e => setFilterPriority(e.target.value)}>
                 <option value="all">All Priority</option>
                 {priorities.filter(p => p.active).map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
-              <select className="text-sm border-gray-300 rounded-md shadow-sm py-2 px-3" value={filterClassification} onChange={e => setFilterClassification(e.target.value)}>
+              <select className="text-sm border-slate-200 rounded-md shadow-sm py-2 px-3" value={filterClassification} onChange={e => setFilterClassification(e.target.value)}>
                 <option value="all">All Types</option>
                 <option value={Classification.ITEM}>Material (Item)</option>
                 <option value={Classification.SERVICE}>Service</option>
               </select>
               {projectCodes.length > 0 && (
-                <select className="text-sm border-gray-300 rounded-md shadow-sm py-2 px-3" value={filterProject} onChange={e => setFilterProject(e.target.value)}>
+                <select className="text-sm border-slate-200 rounded-md shadow-sm py-2 px-3" value={filterProject} onChange={e => setFilterProject(e.target.value)}>
                   <option value="all">All Projects</option>
                   {projectCodes.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               )}
             </div>
           </div>
-          <div className="text-xs text-gray-500">{sortedRequests.length} request{sortedRequests.length !== 1 ? 's' : ''} found</div>
+          <div className="text-xs text-slate-400">{sortedRequests.length} request{sortedRequests.length !== 1 ? 's' : ''} found</div>
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 text-gray-600 font-medium border-b border-gray-200">
+            <thead className="bg-slate-50/80 text-slate-500 font-medium border-b border-slate-200 text-xs uppercase tracking-wider">
               <tr>
                 <th className="p-3 pl-4">ID</th>
                 <th className="p-3 cursor-pointer select-none" onClick={() => toggleSort('priority')}>
@@ -282,12 +282,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <th className="p-3 text-right pr-4">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {paginatedRequests.length === 0 ? (
                 <tr><td colSpan={8} className="p-12 text-center">
-                  <FileText size={32} className="mx-auto text-gray-300 mb-3" />
-                  <p className="text-gray-500 font-medium">No requests found</p>
-                  <p className="text-gray-400 text-xs mt-1">
+                  <FileText size={32} className="mx-auto text-slate-300 mb-3" />
+                  <p className="text-slate-500 font-medium">No requests found</p>
+                  <p className="text-slate-400 text-xs mt-1">
                     {searchQuery || filterStatus !== 'all' ? 'Try adjusting your filters.' : 'Create a new request to get started.'}
                   </p>
                 </td></tr>
@@ -298,36 +298,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   const slaBadge = getSLABadge(req);
 
                   return (
-                    <tr key={req.id} className="hover:bg-gray-50 transition">
+                    <tr key={req.id} className="table-row-hover">
                       <td className="p-3 pl-4">
-                        <span className="font-medium text-indigo-600 text-xs">{req.id}</span>
+                        <span className="font-medium text-blue-600 text-xs font-mono">{req.id}</span>
                       </td>
                       <td className="p-3">
                         <span className={`px-2 py-0.5 rounded text-xs font-bold ${priorityMeta.className}`}>{priorityMeta.name}</span>
                       </td>
                       <td className="p-3">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900 truncate max-w-[200px]">{req.title}</span>
+                          <span className="font-medium text-slate-900 truncate max-w-[200px]">{req.title}</span>
                           {slaBadge && (
                             <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${slaBadge.className}`}>{slaBadge.label}</span>
                           )}
                         </div>
                       </td>
                       <td className="p-3">
-                        <span className="px-2 py-0.5 rounded text-xs bg-gray-100 font-medium border border-gray-200">{req.classification}</span>
+                        <span className="badge-refined bg-slate-50 text-slate-600 ring-1 ring-slate-200">{req.classification}</span>
                       </td>
                       <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(req.status)}`}>{req.status}</span>
+                        <span className={`badge-refined ${getStatusColor(req.status)}`}>{req.status}</span>
                       </td>
-                      <td className="p-3 text-xs text-gray-500">{getSpecialistName(req.assignedSpecialistId)}</td>
-                      <td className="p-3 text-gray-500 text-xs">{new Date(req.createdAt).toLocaleDateString()}</td>
+                      <td className="p-3 text-xs text-slate-500">{getSpecialistName(req.assignedSpecialistId)}</td>
+                      <td className="p-3 text-slate-500 text-xs">{new Date(req.createdAt).toLocaleDateString()}</td>
                       <td className="p-3 text-right pr-4">
                         {isRequesterAttention ? (
-                          <button onClick={() => onNavigate('edit-request', req.id)} className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-md text-xs font-bold hover:bg-indigo-100 flex items-center gap-1 ml-auto border border-indigo-200">
+                          <button onClick={() => onNavigate('edit-request', req.id)} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-100 flex items-center gap-1 ml-auto border border-blue-200/60">
                             Modify <RotateCcw size={12} />
                           </button>
                         ) : (
-                          <button onClick={() => onNavigate('request-detail', req.id)} className="text-gray-500 hover:text-indigo-600 font-medium flex items-center gap-1 justify-end w-full text-xs">
+                          <button onClick={() => onNavigate('request-detail', req.id)} className="text-slate-400 hover:text-blue-600 font-medium flex items-center gap-1 justify-end w-full text-xs transition-colors">
                             View <ArrowRight size={14} />
                           </button>
                         )}
@@ -342,10 +342,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between text-sm text-gray-600">
+          <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between text-sm text-slate-600">
             <span>Page {page} of {totalPages}</span>
             <div className="flex items-center gap-2">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-1.5 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed">
                 <ChevronLeft size={16} />
               </button>
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -353,10 +353,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 const num = start + i;
                 if (num > totalPages) return null;
                 return (
-                  <button key={num} onClick={() => setPage(num)} className={`px-3 py-1 rounded text-xs font-medium ${num === page ? 'bg-indigo-600 text-white' : 'hover:bg-gray-100'}`}>{num}</button>
+                  <button key={num} onClick={() => setPage(num)} className={`px-3 py-1 rounded text-xs font-medium ${num === page ? 'bg-blue-600 text-white shadow-sm' : 'hover:bg-slate-100'}`}>{num}</button>
                 );
               })}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="p-1.5 rounded hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed">
                 <ChevronRight size={16} />
               </button>
             </div>

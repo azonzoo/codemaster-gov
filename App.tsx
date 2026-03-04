@@ -11,11 +11,14 @@ import { Reports } from './pages/Reports';
 import { Register } from './pages/Register';
 
 const LoadingScreen: React.FC = () => (
-  <div className="h-screen bg-gray-50 flex items-center justify-center">
-    <div className="text-center">
-      <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-      <h2 className="text-lg font-semibold text-gray-700">Loading CodeMaster...</h2>
-      <p className="text-sm text-gray-400 mt-1">Connecting to database</p>
+  <div className="h-screen bg-slate-50 flex items-center justify-center">
+    <div className="text-center animate-fadeIn">
+      <div className="w-14 h-14 relative mx-auto mb-6">
+        <div className="absolute inset-0 rounded-full border-[3px] border-slate-200"></div>
+        <div className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-blue-600 animate-spin"></div>
+      </div>
+      <h2 className="text-lg font-semibold text-slate-800 tracking-tight">Loading CodeMaster</h2>
+      <p className="text-sm text-slate-400 mt-1.5">Connecting to database...</p>
     </div>
   </div>
 );

@@ -1,17 +1,191 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Toast slide-in animation */
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+/* ============================================
+   PREMIUM THEME TOKENS
+   ============================================ */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --shadow-premium: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-premium-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-premium-lg: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.06);
+  --shadow-premium-xl: 0 20px 25px -5px rgb(0 0 0 / 0.07), 0 8px 10px -6px rgb(0 0 0 / 0.07);
+  --shadow-glow-blue: 0 0 15px rgb(59 130 246 / 0.15);
 }
 
-.animate-slideIn {
-  animation: slideIn 0.3s ease-out;
+/* ============================================
+   GLOBAL BASE
+   ============================================ */
+html {
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background-color: #f8fafc;
+}
+
+/* ============================================
+   PREMIUM SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.animate-slideIn { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(59 130 246 / 0.2); }
+  50%      { box-shadow: 0 0 0 4px rgb(59 130 246 / 0); }
+}
+.animate-pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+
+/* ============================================
+   PREMIUM UI COMPONENTS
+   ============================================ */
+
+/* Glass card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Left accent card */
+.card-accent-left {
+  position: relative;
+  overflow: hidden;
+}
+.card-accent-left::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+  border-radius: 3px 0 0 3px;
+}
+
+/* Sidebar gradient */
+.sidebar-gradient {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+}
+
+/* Active nav item */
+.nav-active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+  border-left: 3px solid #3b82f6;
+  box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.05);
+}
+
+/* Gradient buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transition: all 200ms ease;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 4px 14px rgb(37 99 235 / 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transition: all 200ms ease;
+}
+.btn-success:hover {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 14px rgb(5 150 105 / 0.3);
+  transform: translateY(-1px);
+}
+
+/* Premium input focus */
+.input-premium {
+  transition: all 200ms ease;
+  border: 1px solid #e2e8f0;
+}
+.input-premium:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+  outline: none;
+}
+
+/* Icon containers with gradients */
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+.icon-container-blue {
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  color: #2563eb;
+}
+.icon-container-emerald {
+  background: linear-gradient(135deg, #d1fae5, #ecfdf5);
+  color: #059669;
+}
+.icon-container-rose {
+  background: linear-gradient(135deg, #ffe4e6, #fff1f2);
+  color: #e11d48;
+}
+.icon-container-amber {
+  background: linear-gradient(135deg, #fef3c7, #fffbeb);
+  color: #d97706;
+}
+.icon-container-violet {
+  background: linear-gradient(135deg, #ede9fe, #f5f3ff);
+  color: #7c3aed;
+}
+
+/* Table row hover */
+.table-row-hover { transition: background-color 150ms ease; }
+.table-row-hover:hover { background-color: #f8fafc; }
+
+/* Step gradients */
+.step-active { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.step-completed { background: linear-gradient(90deg, #059669, #10b981); }
+
+/* Refined badge */
+.badge-refined {
+  font-size: 0.6875rem;
+  letter-spacing: 0.01em;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+/* Audit timeline */
+.timeline-dot {
+  width: 14px; height: 14px;
+  border-radius: 9999px;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #e2e8f0;
+  flex-shrink: 0;
 }
