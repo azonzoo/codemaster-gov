@@ -32,10 +32,12 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
   if (!request) {
     return (
       <div className="text-center py-16">
-        <AlertTriangle size={48} className="mx-auto text-gray-400 mb-4" />
-        <h3 className="text-lg font-semibold text-gray-700">Request not found</h3>
-        <p className="text-gray-500 text-sm mt-1">The request may have been deleted or the ID is invalid.</p>
-        <button onClick={() => onNavigate('dashboard')} className="mt-4 text-indigo-600 hover:underline text-sm">Back to Dashboard</button>
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center mx-auto mb-4">
+          <AlertTriangle size={32} className="text-slate-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-slate-700">Request not found</h3>
+        <p className="text-slate-500 text-sm mt-1">The request may have been deleted or the ID is invalid.</p>
+        <button onClick={() => onNavigate('dashboard')} className="mt-4 text-blue-600 hover:underline text-sm">Back to Dashboard</button>
       </div>
     );
   }
@@ -57,7 +59,7 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
   const isRequestManager = currentUser.role === Role.MANAGER && (
     request.managerId === currentUser.id ||
     request.managerEmail?.toLowerCase() === currentUser.email.toLowerCase() ||
-    (!request.managerId && !request.managerEmail) // General manager can approve any
+    (!request.managerId && !request.managerEmail)
   );
 
   // Workflow Action Handlers
@@ -149,8 +151,8 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
     if (currentUser.id === request.requesterId && (request.status === RequestStatus.REJECTED || request.status === RequestStatus.RETURNED_FOR_CLARIFICATION)) {
       return (
         <div className="flex gap-2">
-          <button onClick={() => onNavigate('edit-request', request.id)} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition">
-            <RotateCcw size={16} /> Modify & Resubmit
+          <button onClick={() => onNavigate('edit-request', request.id)} className="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+            <RotateCcw size={16} strokeWidth={1.75} /> Modify & Resubmit
           </button>
         </div>
       );
@@ -160,14 +162,14 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
     if (isRequestManager && request.status === RequestStatus.PENDING_APPROVAL) {
       return (
         <div className="flex flex-wrap gap-2">
-          <button onClick={handleManagerApprove} className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition">
-            <CheckCircle size={16} /> Approve
+          <button onClick={handleManagerApprove} className="btn-success text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+            <CheckCircle size={16} strokeWidth={1.75} /> Approve
           </button>
-          <button onClick={handleReturn} className="bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-700 transition">
-            <CornerUpLeft size={16} /> Return
+          <button onClick={handleReturn} className="bg-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-amber-700 transition">
+            <CornerUpLeft size={16} strokeWidth={1.75} /> Return
           </button>
-          <button onClick={handleReject} className={`${confirmReject ? 'bg-red-800' : 'bg-red-600'} text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-700 transition`}>
-            <XCircle size={16} /> {confirmReject ? 'Confirm Reject' : 'Reject'}
+          <button onClick={handleReject} className={`${confirmReject ? 'bg-rose-800' : 'bg-rose-600'} text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-rose-700 transition`}>
+            <XCircle size={16} strokeWidth={1.75} /> {confirmReject ? 'Confirm Reject' : 'Reject'}
           </button>
         </div>
       );
@@ -178,12 +180,12 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
       const specialists = users.filter(u => u.role === Role.SPECIALIST);
       return (
         <div className="flex gap-2 items-center flex-wrap">
-          <select className="border rounded-lg p-2.5 text-sm" value={assigneeId} onChange={e => setAssigneeId(e.target.value)}>
+          <select className="border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-blue-500/20 transition" value={assigneeId} onChange={e => setAssigneeId(e.target.value)}>
             <option value="">Select Specialist...</option>
             {specialists.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
-          <button onClick={handlePOCAssign} className="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-indigo-700 transition">
-            <UserPlus size={16} /> Assign
+          <button onClick={handlePOCAssign} className="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+            <UserPlus size={16} strokeWidth={1.75} /> Assign
           </button>
         </div>
       );
@@ -194,19 +196,19 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
       const specialists = users.filter(u => u.role === Role.SPECIALIST);
       return (
         <div className="space-y-2">
-          <p className="text-sm text-gray-600">Currently assigned to <strong>{assignedSpecialist?.name}</strong></p>
+          <p className="text-sm text-slate-600">Currently assigned to <strong>{assignedSpecialist?.name}</strong></p>
           {!showReassign ? (
             <button onClick={() => setShowReassign(true)} className="bg-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-amber-700 transition text-sm">
-              <RefreshCw size={14} /> Reassign
+              <RefreshCw size={14} strokeWidth={1.75} /> Reassign
             </button>
           ) : (
             <div className="flex gap-2 items-center">
-              <select className="border rounded-lg p-2 text-sm" value={reassignId} onChange={e => setReassignId(e.target.value)}>
+              <select className="border border-slate-300 rounded-lg p-2 text-sm focus:border-blue-500 focus:ring-blue-500/20 transition" value={reassignId} onChange={e => setReassignId(e.target.value)}>
                 <option value="">Select New Specialist...</option>
                 {specialists.filter(s => s.id !== request.assignedSpecialistId).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
-              <button onClick={handleReassign} className="bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-indigo-700 transition">Confirm</button>
-              <button onClick={() => setShowReassign(false)} className="text-gray-500 text-sm hover:text-gray-700">Cancel</button>
+              <button onClick={handleReassign} className="btn-primary text-white px-3 py-2 rounded-lg text-sm transition">Confirm</button>
+              <button onClick={() => setShowReassign(false)} className="text-slate-500 text-sm hover:text-slate-700 transition">Cancel</button>
             </div>
           )}
         </div>
@@ -216,7 +218,7 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
     // Specialist Actions
     if (currentUser.role === Role.SPECIALIST && request.assignedSpecialistId === currentUser.id && request.status === RequestStatus.ASSIGNED) {
       return (
-        <button onClick={() => updateRequestStatus(request.id, RequestStatus.UNDER_SPECIALIST_REVIEW, 'Started review')} className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+        <button onClick={() => updateRequestStatus(request.id, RequestStatus.UNDER_SPECIALIST_REVIEW, 'Started review')} className="btn-primary text-white px-4 py-2 rounded-lg transition">
           Start Review
         </button>
       );
@@ -226,18 +228,18 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
       return (
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Draft Final Description</label>
-            <textarea className="w-full border rounded-lg p-2.5 text-sm font-mono" rows={2} value={finalDesc} onChange={e => setFinalDesc(e.target.value)} placeholder="Edit the auto-generated description if needed..." />
+            <label className="block text-xs font-medium text-slate-600 mb-1">Draft Final Description</label>
+            <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-mono focus:border-blue-500 focus:ring-blue-500/20 transition" rows={2} value={finalDesc} onChange={e => setFinalDesc(e.target.value)} placeholder="Edit the auto-generated description if needed..." />
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={handleSpecialistReview} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm hover:bg-blue-700 transition">
-              <CheckCircle size={14} /> Send for Technical Validation
+            <button onClick={handleSpecialistReview} className="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm transition">
+              <CheckCircle size={14} strokeWidth={1.75} /> Send for Technical Validation
             </button>
-            <button onClick={handleReturn} className="bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm hover:bg-yellow-700 transition">
-              <CornerUpLeft size={14} /> Return for Clarification
+            <button onClick={handleReturn} className="bg-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm hover:bg-amber-700 transition">
+              <CornerUpLeft size={14} strokeWidth={1.75} /> Return for Clarification
             </button>
-            <button onClick={handleReject} className={`${confirmReject ? 'bg-red-800' : 'bg-red-600'} text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm hover:bg-red-700 transition`}>
-              <XCircle size={14} /> {confirmReject ? 'Confirm Reject' : 'Reject'}
+            <button onClick={handleReject} className={`${confirmReject ? 'bg-rose-800' : 'bg-rose-600'} text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm hover:bg-rose-700 transition`}>
+              <XCircle size={14} strokeWidth={1.75} /> {confirmReject ? 'Confirm Reject' : 'Reject'}
             </button>
           </div>
         </div>
@@ -248,14 +250,14 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
     if (currentUser.role === Role.SPECIALIST && request.status === RequestStatus.PENDING_ORACLE_CREATION) {
       return (
         <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-xs font-bold text-green-700 uppercase mb-1">Validated Description</p>
-            <p className="font-mono text-sm text-green-900">{request.finalDescription || request.generatedDescription}</p>
+          <div className="bg-emerald-50 border border-emerald-200/60 rounded-xl p-3">
+            <p className="text-xs font-bold text-emerald-700 uppercase mb-1 tracking-wide">Validated Description</p>
+            <p className="font-mono text-sm text-emerald-900">{request.finalDescription || request.generatedDescription}</p>
           </div>
           <div className="flex gap-2 items-center">
-            <input type="text" placeholder="Enter Oracle Code..." className="border rounded-lg p-2.5 flex-1 text-sm" value={oracleCode} onChange={e => setOracleCode(e.target.value)} />
-            <button onClick={handleCreateCode} className="bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-800 transition text-sm">
-              <FileCheck size={14} /> Complete
+            <input type="text" placeholder="Enter Oracle Code..." className="border border-slate-300 rounded-lg p-2.5 flex-1 text-sm focus:border-blue-500 focus:ring-blue-500/20 transition" value={oracleCode} onChange={e => setOracleCode(e.target.value)} />
+            <button onClick={handleCreateCode} className="btn-success text-white px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm">
+              <FileCheck size={14} strokeWidth={1.75} /> Complete
             </button>
           </div>
         </div>
@@ -268,51 +270,50 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-blue-700 mb-1 flex items-center gap-1"><Edit3 size={12} /> Final Description (Editable)</label>
-            <textarea className="w-full border border-blue-300 rounded-lg p-2.5 text-sm font-mono focus:ring-2 focus:ring-blue-200" rows={3} value={finalDesc} onChange={e => setFinalDesc(e.target.value)} />
+            <textarea className="w-full border border-blue-300 rounded-lg p-2.5 text-sm font-mono focus:ring-2 focus:ring-blue-200 transition" rows={3} value={finalDesc} onChange={e => setFinalDesc(e.target.value)} />
           </div>
           <div className="flex gap-2">
-            <button onClick={handleTechValidation} className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition text-sm">
-              <CheckCircle size={14} /> Validate Description
+            <button onClick={handleTechValidation} className="btn-success text-white px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm">
+              <CheckCircle size={14} strokeWidth={1.75} /> Validate Description
             </button>
             <button onClick={() => {
               if (!comment.trim()) { addToast('Add a comment explaining what needs correction.', 'warning'); return; }
               updateRequestStatus(request.id, RequestStatus.UNDER_SPECIALIST_REVIEW, comment);
-            }} className="bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-700 transition text-sm">
-              <CornerUpLeft size={14} /> Return to Specialist
+            }} className="bg-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-amber-700 transition text-sm">
+              <CornerUpLeft size={14} strokeWidth={1.75} /> Return to Specialist
             </button>
           </div>
         </div>
       );
     }
 
-    return <p className="text-sm text-gray-500 italic">No actions available for your role at this stage.</p>;
+    return <p className="text-sm text-slate-500 italic">No actions available for your role at this stage.</p>;
   };
 
   const showWorkflowActions = request.status !== RequestStatus.COMPLETED;
 
-  // Stage timestamps for display
   const stageTimestamps = request.stageTimestamps || [];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button onClick={() => onNavigate('dashboard')} className="p-2 hover:bg-gray-200 rounded-full transition"><ArrowLeft size={20} /></button>
+        <button onClick={() => onNavigate('dashboard')} className="p-2 hover:bg-slate-200 rounded-full transition"><ArrowLeft size={20} strokeWidth={1.75} /></button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{request.title}</h1>
-          <p className="text-sm text-gray-500">{request.id} &bull; {request.classification} &bull; {request.requestType || 'New'}</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{request.title}</h1>
+          <p className="text-sm text-slate-500">{request.id} &bull; {request.classification} &bull; {request.requestType || 'New'}</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
           {slaInfo && request.status !== RequestStatus.COMPLETED && request.status !== RequestStatus.REJECTED && (
-            <span className={`px-2 py-1 rounded text-xs font-bold ${slaInfo.breached ? 'bg-red-500 text-white' : slaInfo.ratio >= 0.75 ? 'bg-amber-500 text-white' : 'bg-green-100 text-green-800'}`}>
+            <span className={`badge-refined ring-1 font-bold ${slaInfo.breached ? 'bg-rose-500 text-white ring-rose-500/20' : slaInfo.ratio >= 0.75 ? 'bg-amber-500 text-white ring-amber-500/20' : 'bg-emerald-50 text-emerald-800 ring-emerald-600/10'}`}>
               {slaInfo.breached ? `SLA Breached (${Math.abs(slaInfo.remaining)}h over)` : `${slaInfo.remaining}h remaining`}
             </span>
           )}
-          <span className={`px-3 py-1 rounded-full text-sm font-bold border ${
-            request.status === RequestStatus.REJECTED ? 'bg-red-100 text-red-800 border-red-200' :
-            request.status === RequestStatus.RETURNED_FOR_CLARIFICATION ? 'bg-orange-100 text-orange-800 border-orange-200' :
-            request.status === RequestStatus.COMPLETED ? 'bg-green-100 text-green-800 border-green-200' :
-            'bg-indigo-100 text-indigo-800 border-indigo-200'
+          <span className={`badge-refined ring-1 font-bold ${
+            request.status === RequestStatus.REJECTED ? 'bg-rose-50 text-rose-800 ring-rose-600/10' :
+            request.status === RequestStatus.RETURNED_FOR_CLARIFICATION ? 'bg-amber-50 text-amber-800 ring-amber-600/10' :
+            request.status === RequestStatus.COMPLETED ? 'bg-emerald-50 text-emerald-800 ring-emerald-600/10' :
+            'bg-blue-50 text-blue-800 ring-blue-600/10'
           }`}>
             {request.status}
           </span>
@@ -322,27 +323,27 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Technical Attributes */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Technical Attributes</h3>
+          <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200/60 pb-2">Technical Attributes</h3>
             <DynamicForm
               attributes={attributes.filter(a => a.active && (a.visibleForClassification ? a.visibleForClassification.includes(request.classification) : true))}
               values={request.attributes}
               onChange={() => {}}
               readOnly={true}
             />
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <span className="text-xs uppercase font-bold text-gray-500">Auto-Generated Description</span>
-              <div className="text-sm font-mono text-gray-600 mt-1">{request.generatedDescription || '-'}</div>
+            <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200/60">
+              <span className="text-xs uppercase font-bold text-slate-500 tracking-wide">Auto-Generated Description</span>
+              <div className="text-sm font-mono text-slate-600 mt-1">{request.generatedDescription || '-'}</div>
             </div>
             {request.finalDescription && request.status !== RequestStatus.UNDER_TECHNICAL_VALIDATION && (
-              <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-                <span className="text-xs uppercase font-bold text-green-700 flex items-center gap-1"><CheckCircle size={12} /> Final Description</span>
-                <div className="text-base font-mono text-green-900 mt-1">{request.finalDescription}</div>
+              <div className="mt-4 p-4 bg-emerald-50 rounded-xl border border-emerald-200/60">
+                <span className="text-xs uppercase font-bold text-emerald-700 flex items-center gap-1 tracking-wide"><CheckCircle size={12} /> Final Description</span>
+                <div className="text-base font-mono text-emerald-900 mt-1">{request.finalDescription}</div>
               </div>
             )}
             {request.oracleCode && (
-              <div className="mt-4 p-4 bg-gray-800 rounded-lg text-white">
-                <span className="text-xs uppercase font-bold text-gray-400">Oracle Code</span>
+              <div className="mt-4 p-4 bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl text-white shadow-lg">
+                <span className="text-xs uppercase font-bold text-slate-400 tracking-wide">Oracle Code</span>
                 <div className="text-2xl font-bold mt-1 tracking-wider">{request.oracleCode}</div>
               </div>
             )}
@@ -350,34 +351,34 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
 
           {/* Clarification Thread */}
           {(request.status === RequestStatus.RETURNED_FOR_CLARIFICATION || (request.clarificationThread && request.clarificationThread.length > 0)) && (
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-orange-200">
-              <h3 className="text-sm uppercase font-bold text-orange-800 mb-4 flex items-center gap-2"><MessageSquare size={16} /> Clarification Thread</h3>
+            <div className="bg-white p-6 rounded-xl shadow-premium border border-amber-200/60">
+              <h3 className="text-sm uppercase font-bold text-amber-800 mb-4 flex items-center gap-2 tracking-wide"><MessageSquare size={16} strokeWidth={1.75} /> Clarification Thread</h3>
               <div className="space-y-3 max-h-64 overflow-y-auto mb-4">
                 {(request.clarificationThread || []).map(c => (
-                  <div key={c.id} className={`p-3 rounded-lg text-sm ${c.userId === request.requesterId ? 'bg-blue-50 border border-blue-100 ml-4' : 'bg-gray-50 border border-gray-200 mr-4'}`}>
+                  <div key={c.id} className={`p-3 rounded-xl text-sm ${c.userId === request.requesterId ? 'bg-blue-50 border border-blue-100/60 ml-4' : 'bg-slate-50 border border-slate-200/60 mr-4'}`}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="font-medium text-gray-800">{c.userName}</span>
-                      <span className="text-xs text-gray-500">{new Date(c.timestamp).toLocaleString()}</span>
+                      <span className="font-medium text-slate-800">{c.userName}</span>
+                      <span className="text-xs text-slate-500">{new Date(c.timestamp).toLocaleString()}</span>
                     </div>
-                    <p className="text-gray-700">{c.message}</p>
+                    <p className="text-slate-700">{c.message}</p>
                   </div>
                 ))}
                 {(!request.clarificationThread || request.clarificationThread.length === 0) && (
-                  <p className="text-sm text-gray-500 italic">No messages yet. Use the form below to add a clarification.</p>
+                  <p className="text-sm text-slate-500 italic">No messages yet. Use the form below to add a clarification.</p>
                 )}
               </div>
               {request.status === RequestStatus.RETURNED_FOR_CLARIFICATION && (
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    className="flex-1 border rounded-lg p-2.5 text-sm"
+                    className="flex-1 border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-blue-500/20 transition"
                     placeholder="Type your message..."
                     value={clarificationMessage}
                     onChange={e => setClarificationMessage(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') handleAddClarification(); }}
                   />
-                  <button onClick={handleAddClarification} className="bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-orange-700 transition text-sm">
-                    <Send size={14} /> Send
+                  <button onClick={handleAddClarification} className="bg-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-amber-700 transition text-sm">
+                    <Send size={14} strokeWidth={1.75} /> Send
                   </button>
                 </div>
               )}
@@ -386,11 +387,11 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
 
           {/* Workflow Actions */}
           {showWorkflowActions && (
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-indigo-100 ring-1 ring-indigo-50">
-              <h3 className="text-sm uppercase font-bold text-indigo-800 mb-4">Workflow Actions</h3>
+            <div className="bg-white p-6 rounded-xl shadow-premium border border-blue-100/60 ring-1 ring-blue-50">
+              <h3 className="text-sm uppercase font-bold text-blue-800 mb-4 tracking-wide">Workflow Actions</h3>
               <div className="space-y-4">
                 {!(currentUser.id === request.requesterId && (request.status === RequestStatus.REJECTED || request.status === RequestStatus.RETURNED_FOR_CLARIFICATION)) && (
-                  <textarea className="w-full border rounded-lg p-2.5 text-sm" placeholder="Add comments (required for rejection/return)..." value={comment} onChange={e => setComment(e.target.value)} rows={2} />
+                  <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:border-blue-500 focus:ring-blue-500/20 transition" placeholder="Add comments (required for rejection/return)..." value={comment} onChange={e => setComment(e.target.value)} rows={2} />
                 )}
                 {renderActions()}
               </div>
@@ -401,66 +402,66 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Request Details */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="font-semibold text-gray-800 mb-4">Request Details</h3>
+          <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+            <h3 className="font-semibold text-slate-800 mb-4">Request Details</h3>
             <dl className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <dt className="text-gray-500">Priority</dt>
-                <dd className={`font-medium px-2 py-0.5 rounded text-xs ${priority?.name.toLowerCase().includes('critical') ? 'bg-red-100 text-red-800' : priority?.name.toLowerCase().includes('urgent') ? 'bg-orange-100 text-orange-800' : 'bg-blue-50 text-blue-800'}`}>{priority?.name ?? 'Unknown'}</dd>
+                <dt className="text-slate-500">Priority</dt>
+                <dd className={`font-medium badge-refined ring-1 ${priority?.name.toLowerCase().includes('critical') ? 'bg-rose-50 text-rose-800 ring-rose-600/10' : priority?.name.toLowerCase().includes('urgent') ? 'bg-amber-50 text-amber-800 ring-amber-600/10' : 'bg-blue-50 text-blue-800 ring-blue-600/10'}`}>{priority?.name ?? 'Unknown'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Classification</dt>
+                <dt className="text-slate-500">Classification</dt>
                 <dd className="font-medium">{request.classification}</dd>
               </div>
-              {request.materialSubType && <div className="flex justify-between"><dt className="text-gray-500">Sub-Type</dt><dd className="font-medium">{request.materialSubType}</dd></div>}
-              {request.serviceSubType && <div className="flex justify-between"><dt className="text-gray-500">Sub-Type</dt><dd className="font-medium">{request.serviceSubType}</dd></div>}
+              {request.materialSubType && <div className="flex justify-between"><dt className="text-slate-500">Sub-Type</dt><dd className="font-medium">{request.materialSubType}</dd></div>}
+              {request.serviceSubType && <div className="flex justify-between"><dt className="text-slate-500">Sub-Type</dt><dd className="font-medium">{request.serviceSubType}</dd></div>}
               <div className="flex justify-between">
-                <dt className="text-gray-500">Project</dt>
+                <dt className="text-slate-500">Project</dt>
                 <dd className="font-medium">{request.project}</dd>
               </div>
-              {request.unspscCode && <div className="flex justify-between"><dt className="text-gray-500">UNSPSC</dt><dd className="font-medium">{request.unspscCode}</dd></div>}
-              {request.uom && <div className="flex justify-between"><dt className="text-gray-500">UOM</dt><dd className="font-medium">{request.uom}</dd></div>}
+              {request.unspscCode && <div className="flex justify-between"><dt className="text-slate-500">UNSPSC</dt><dd className="font-medium">{request.unspscCode}</dd></div>}
+              {request.uom && <div className="flex justify-between"><dt className="text-slate-500">UOM</dt><dd className="font-medium">{request.uom}</dd></div>}
               <div className="flex justify-between">
-                <dt className="text-gray-500">Requester</dt>
+                <dt className="text-slate-500">Requester</dt>
                 <dd className="font-medium">{users.find(u => u.id === request.requesterId)?.name ?? 'Unknown'}</dd>
               </div>
               {assignedSpecialist && (
-                <div className="pt-2 border-t border-gray-100">
-                  <dt className="text-gray-500 mb-1">Assigned Specialist</dt>
-                  <dd className="font-medium flex items-center gap-2 text-indigo-700 bg-indigo-50 p-2 rounded-lg"><UserIcon size={16} />{assignedSpecialist.name}</dd>
+                <div className="pt-2 border-t border-slate-100">
+                  <dt className="text-slate-500 mb-1">Assigned Specialist</dt>
+                  <dd className="font-medium flex items-center gap-2 text-blue-700 bg-blue-50 p-2 rounded-lg"><UserIcon size={16} strokeWidth={1.75} />{assignedSpecialist.name}</dd>
                 </div>
               )}
-              <div className="flex justify-between"><dt className="text-gray-500">Created</dt><dd className="font-medium">{new Date(request.createdAt).toLocaleString()}</dd></div>
-              <div className="flex justify-between"><dt className="text-gray-500">Updated</dt><dd className="font-medium">{new Date(request.updatedAt).toLocaleString()}</dd></div>
+              <div className="flex justify-between"><dt className="text-slate-500">Created</dt><dd className="font-medium">{new Date(request.createdAt).toLocaleString()}</dd></div>
+              <div className="flex justify-between"><dt className="text-slate-500">Updated</dt><dd className="font-medium">{new Date(request.updatedAt).toLocaleString()}</dd></div>
               {request.justification && (
-                <div className="pt-2 border-t border-gray-100">
-                  <dt className="text-gray-500 mb-1">Justification</dt>
-                  <dd className="italic text-gray-600 text-xs bg-yellow-50 p-2 rounded">{request.justification}</dd>
+                <div className="pt-2 border-t border-slate-100">
+                  <dt className="text-slate-500 mb-1">Justification</dt>
+                  <dd className="italic text-slate-600 text-xs bg-amber-50 p-2 rounded-lg border border-amber-200/60">{request.justification}</dd>
                 </div>
               )}
               {request.managerName && (
-                <div className="pt-2 border-t border-gray-100">
-                  <dt className="text-gray-500 mb-1">Approving Manager</dt>
+                <div className="pt-2 border-t border-slate-100">
+                  <dt className="text-slate-500 mb-1">Approving Manager</dt>
                   <dd className="font-medium">
                     {request.managerName}
-                    <a href={`mailto:${request.managerEmail}`} className="text-indigo-600 flex items-center gap-1 text-xs hover:underline mt-0.5"><Mail size={10} /> {request.managerEmail}</a>
+                    <a href={`mailto:${request.managerEmail}`} className="text-blue-600 flex items-center gap-1 text-xs hover:underline mt-0.5"><Mail size={10} /> {request.managerEmail}</a>
                   </dd>
                 </div>
               )}
               {request.rejectionReason && (
-                <div className="pt-2 border-t border-gray-100">
-                  <dt className="text-gray-500 mb-1">Rejection Reason</dt>
-                  <dd className="text-red-700 text-xs bg-red-50 p-2 rounded">{request.rejectionReason}</dd>
+                <div className="pt-2 border-t border-slate-100">
+                  <dt className="text-slate-500 mb-1">Rejection Reason</dt>
+                  <dd className="text-rose-700 text-xs bg-rose-50 p-2 rounded-lg border border-rose-200/60">{request.rejectionReason}</dd>
                 </div>
               )}
               {request.attachments && request.attachments.length > 0 && (
-                <div className="pt-2 border-t border-gray-100">
-                  <dt className="text-gray-500 mb-2 flex items-center gap-1"><Paperclip size={12} /> Attachments</dt>
+                <div className="pt-2 border-t border-slate-100">
+                  <dt className="text-slate-500 mb-2 flex items-center gap-1"><Paperclip size={12} /> Attachments</dt>
                   <dd className="space-y-1.5">
                     {request.attachments.map(att => (
-                      <a key={att.id} href={att.url} download={att.name} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 transition group">
+                      <a key={att.id} href={att.url} download={att.name} className="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-200/60 hover:bg-slate-100 transition group">
                         <span className="text-xs font-medium truncate max-w-[150px]">{att.name}</span>
-                        <Download size={12} className="text-gray-400 group-hover:text-indigo-600" />
+                        <Download size={12} className="text-slate-400 group-hover:text-blue-600 transition" />
                       </a>
                     ))}
                   </dd>
@@ -471,13 +472,13 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
 
           {/* Stage Timestamps */}
           {stageTimestamps.length > 0 && (
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2"><Clock size={16} /> Stage Durations</h3>
+            <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+              <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2"><Clock size={16} strokeWidth={1.75} /> Stage Durations</h3>
               <div className="space-y-2 text-xs">
                 {stageTimestamps.map((st, i) => (
-                  <div key={i} className="flex justify-between items-center py-1.5 border-b border-gray-100 last:border-0">
-                    <span className="text-gray-600 truncate max-w-[140px]">{st.status}</span>
-                    <span className="font-mono text-gray-800">{st.durationHours != null ? `${st.durationHours}h` : 'Active'}</span>
+                  <div key={i} className="flex justify-between items-center py-1.5 border-b border-slate-100 last:border-0">
+                    <span className="text-slate-600 truncate max-w-[140px]">{st.status}</span>
+                    <span className="font-mono text-slate-800">{st.durationHours != null ? `${st.durationHours}h` : 'Active'}</span>
                   </div>
                 ))}
               </div>
@@ -485,26 +486,26 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
           )}
 
           {/* Audit Log */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="font-semibold text-gray-800 mb-4">Audit Log</h3>
-            <div className="space-y-4 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+          <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+            <h3 className="font-semibold text-slate-800 mb-4">Audit Log</h3>
+            <div className="space-y-4 relative before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-0.5 before:bg-gradient-to-b before:from-slate-300 before:to-slate-100">
               {request.history.map((log, idx) => (
                 <div key={idx} className="relative pl-6">
-                  <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-white ${
-                    log.action.includes('Completed') || log.action.includes('approved') ? 'bg-green-500' :
-                    log.action.includes('Reject') || log.action.includes('rejected') ? 'bg-red-500' :
-                    log.action.includes('Return') || log.action.includes('returned') ? 'bg-orange-500' :
-                    log.action.includes('Created') ? 'bg-indigo-500' :
-                    'bg-gray-300'
+                  <div className={`timeline-dot absolute left-0 top-1.5 ${
+                    log.action.includes('Completed') || log.action.includes('approved') ? 'bg-emerald-500' :
+                    log.action.includes('Reject') || log.action.includes('rejected') ? 'bg-rose-500' :
+                    log.action.includes('Return') || log.action.includes('returned') ? 'bg-amber-500' :
+                    log.action.includes('Created') ? 'bg-blue-500' :
+                    'bg-slate-300'
                   }`}></div>
-                  <div className="text-xs text-gray-500">{new Date(log.timestamp).toLocaleString()}</div>
-                  <div className="text-sm font-medium text-gray-900">{log.action}</div>
-                  <div className="text-xs text-gray-600">by {log.user}</div>
-                  {log.details && <div className="text-xs text-gray-400 mt-1 italic">&ldquo;{log.details}&rdquo;</div>}
+                  <div className="text-xs text-slate-500">{new Date(log.timestamp).toLocaleString()}</div>
+                  <div className="text-sm font-medium text-slate-900">{log.action}</div>
+                  <div className="text-xs text-slate-600">by {log.user}</div>
+                  {log.details && <div className="text-xs text-slate-400 mt-1 italic">&ldquo;{log.details}&rdquo;</div>}
                   {log.changedFields && log.changedFields.length > 0 && (
                     <div className="mt-1 text-xs space-y-0.5">
                       {log.changedFields.map((cf, ci) => (
-                        <div key={ci} className="text-gray-500"><span className="font-medium">{cf.field}</span>: <span className="line-through text-red-400">{cf.oldValue || '(empty)'}</span> → <span className="text-green-600">{cf.newValue || '(empty)'}</span></div>
+                        <div key={ci} className="text-slate-500"><span className="font-medium">{cf.field}</span>: <span className="line-through text-rose-400">{cf.oldValue || '(empty)'}</span> → <span className="text-emerald-600">{cf.newValue || '(empty)'}</span></div>
                       ))}
                     </div>
                   )}

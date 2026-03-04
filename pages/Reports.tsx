@@ -8,7 +8,7 @@ interface ReportsProps {
   onNavigate: (page: string) => void;
 }
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'];
+const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'];
 
 export const Reports: React.FC<ReportsProps> = ({ onNavigate }) => {
   const { requests, priorities, users } = useStore();
@@ -46,7 +46,7 @@ export const Reports: React.FC<ReportsProps> = ({ onNavigate }) => {
   const metSlaCount = slaData.filter(d => d.metSla).length;
   const complianceRate = slaData.length > 0 ? ((metSlaCount / slaData.length) * 100).toFixed(1) : 'N/A';
 
-  // Per-stage average durations (from stageTimestamps)
+  // Per-stage average durations
   const stageAvgData = useMemo(() => {
     const stageDurations: Record<string, number[]> = {};
     requests.forEach(req => {
@@ -96,34 +96,34 @@ export const Reports: React.FC<ReportsProps> = ({ onNavigate }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <button onClick={() => onNavigate('dashboard')} className="p-2 hover:bg-gray-200 rounded-full transition"><ArrowLeft size={20} /></button>
-        <h2 className="text-2xl font-bold text-gray-800">Performance Reports</h2>
+        <button onClick={() => onNavigate('dashboard')} className="p-2 hover:bg-slate-200 rounded-full transition"><ArrowLeft size={20} strokeWidth={1.75} /></button>
+        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Performance Reports</h2>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><TrendingUp size={16} /> Total Requests</div>
-          <p className="text-3xl font-bold text-gray-900">{requests.length}</p>
+        <div className="bg-white p-5 rounded-xl shadow-premium border border-slate-200/60 card-accent-left">
+          <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2"><TrendingUp size={16} strokeWidth={1.75} /> Total Requests</div>
+          <p className="text-3xl font-bold text-slate-900">{requests.length}</p>
         </div>
-        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><Target size={16} /> Completed</div>
-          <p className="text-3xl font-bold text-green-600">{completedRequests.length}</p>
+        <div className="bg-white p-5 rounded-xl shadow-premium border border-slate-200/60">
+          <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2"><Target size={16} strokeWidth={1.75} /> Completed</div>
+          <p className="text-3xl font-bold text-emerald-600">{completedRequests.length}</p>
         </div>
-        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><Clock size={16} /> SLA Compliance</div>
-          <p className={`text-3xl font-bold ${complianceRate !== 'N/A' && parseFloat(complianceRate) >= 90 ? 'text-green-600' : 'text-orange-500'}`}>{complianceRate}{complianceRate !== 'N/A' ? '%' : ''}</p>
+        <div className="bg-white p-5 rounded-xl shadow-premium border border-slate-200/60">
+          <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2"><Clock size={16} strokeWidth={1.75} /> SLA Compliance</div>
+          <p className={`text-3xl font-bold ${complianceRate !== 'N/A' && parseFloat(complianceRate) >= 90 ? 'text-emerald-600' : 'text-amber-500'}`}>{complianceRate}{complianceRate !== 'N/A' ? '%' : ''}</p>
         </div>
-        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><Users size={16} /> Active Specialists</div>
-          <p className="text-3xl font-bold text-indigo-600">{specialistData.length}</p>
+        <div className="bg-white p-5 rounded-xl shadow-premium border border-slate-200/60">
+          <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold uppercase tracking-wide mb-2"><Users size={16} strokeWidth={1.75} /> Active Specialists</div>
+          <p className="text-3xl font-bold text-blue-600">{specialistData.length}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Status Distribution */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="font-bold text-gray-800 mb-4">Status Distribution</h3>
+        <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+          <h3 className="font-bold text-slate-800 mb-4">Status Distribution</h3>
           {statusData.length > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -136,35 +136,35 @@ export const Reports: React.FC<ReportsProps> = ({ onNavigate }) => {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-          ) : <div className="h-64 flex items-center justify-center text-gray-400 italic">No data</div>}
+          ) : <div className="h-64 flex items-center justify-center text-slate-400 italic">No data</div>}
         </div>
 
         {/* Priority Volume */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="font-bold text-gray-800 mb-4">Volume by Priority</h3>
+        <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+          <h3 className="font-bold text-slate-800 mb-4">Volume by Priority</h3>
           {priorityData.length > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={priorityData}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#6366f1" name="Requests" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="count" fill="#2563eb" name="Requests" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          ) : <div className="h-64 flex items-center justify-center text-gray-400 italic">No data</div>}
+          ) : <div className="h-64 flex items-center justify-center text-slate-400 italic">No data</div>}
         </div>
 
         {/* Average Time per Stage */}
         {stageAvgData.length > 0 && (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h3 className="font-bold text-gray-800 mb-4">Average Time per Stage (Hours)</h3>
+          <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+            <h3 className="font-bold text-slate-800 mb-4">Average Time per Stage (Hours)</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stageAvgData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis type="number" />
                   <YAxis dataKey="stage" type="category" width={120} tick={{ fontSize: 11 }} />
                   <Tooltip formatter={(val: number) => `${val}h`} />
@@ -176,13 +176,13 @@ export const Reports: React.FC<ReportsProps> = ({ onNavigate }) => {
         )}
 
         {/* SLA Performance */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="font-bold text-gray-800 mb-4">SLA Performance - Actual vs Target</h3>
+        <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+          <h3 className="font-bold text-slate-800 mb-4">SLA Performance - Actual vs Target</h3>
           {slaData.length > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={slaData}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="id" tick={{ fontSize: 10 }} />
                   <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
@@ -192,36 +192,36 @@ export const Reports: React.FC<ReportsProps> = ({ onNavigate }) => {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          ) : <div className="h-64 flex items-center justify-center text-gray-400 italic">No completed requests to analyze yet.</div>}
+          ) : <div className="h-64 flex items-center justify-center text-slate-400 italic">No completed requests to analyze yet.</div>}
         </div>
       </div>
 
       {/* Specialist Performance Table */}
       {specialistData.length > 0 && (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="font-bold text-gray-800 mb-4">Specialist Performance</h3>
+        <div className="bg-white p-6 rounded-xl shadow-premium border border-slate-200/60">
+          <h3 className="font-bold text-slate-800 mb-4">Specialist Performance</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 text-gray-600 font-medium border-b">
+              <thead className="bg-slate-50/80 text-slate-500 font-semibold border-b border-slate-200/60">
                 <tr>
-                  <th className="p-3">Specialist</th>
-                  <th className="p-3 text-center">Assigned</th>
-                  <th className="p-3 text-center">Completed</th>
-                  <th className="p-3 text-center">In Progress</th>
-                  <th className="p-3 text-center">Avg Time (h)</th>
-                  <th className="p-3 text-center">SLA Rate</th>
+                  <th className="p-3 text-xs uppercase tracking-wider">Specialist</th>
+                  <th className="p-3 text-center text-xs uppercase tracking-wider">Assigned</th>
+                  <th className="p-3 text-center text-xs uppercase tracking-wider">Completed</th>
+                  <th className="p-3 text-center text-xs uppercase tracking-wider">In Progress</th>
+                  <th className="p-3 text-center text-xs uppercase tracking-wider">Avg Time (h)</th>
+                  <th className="p-3 text-center text-xs uppercase tracking-wider">SLA Rate</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {specialistData.map(spec => (
-                  <tr key={spec.name} className="hover:bg-gray-50">
-                    <td className="p-3 font-medium text-gray-900">{spec.name}</td>
+                  <tr key={spec.name} className="table-row-hover">
+                    <td className="p-3 font-medium text-slate-900">{spec.name}</td>
                     <td className="p-3 text-center">{spec.assigned}</td>
-                    <td className="p-3 text-center text-green-600 font-bold">{spec.completed}</td>
+                    <td className="p-3 text-center text-emerald-600 font-bold">{spec.completed}</td>
                     <td className="p-3 text-center text-blue-600">{spec.inProgress}</td>
                     <td className="p-3 text-center font-mono">{spec.avgHours}</td>
                     <td className="p-3 text-center">
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${spec.slaRate >= 90 ? 'bg-green-100 text-green-800' : spec.slaRate >= 70 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                      <span className={`badge-refined ring-1 ${spec.slaRate >= 90 ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/10' : spec.slaRate >= 70 ? 'bg-amber-50 text-amber-700 ring-amber-600/10' : 'bg-rose-50 text-rose-700 ring-rose-600/10'}`}>
                         {spec.slaRate}%
                       </span>
                     </td>
