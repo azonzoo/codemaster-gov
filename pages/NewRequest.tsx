@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useStore, useToast } from '../store';
 import { Classification, MaterialSubType, ServiceSubType, RequestStatus, RequestItem, AttributeType } from '../types';
 import { DynamicForm } from '../components/DynamicForm';
 import { ArrowLeft, ArrowRight, Send, Info, AlertTriangle, CheckCircle, Paperclip, X, FileText, Eye } from 'lucide-react';
-
-interface NewRequestProps {
-  onNavigate: (page: string, id?: string) => void;
-  requestId?: string;
-}
 
 const MAX_ATTACHMENT_SIZE = 500_000; // 500KB
 const TOTAL_STEPS = 4;
 
 const SERVICE_UOM_OPTIONS = ['Days', 'Hours', 'Lumpsum', 'Each', 'Monthly', 'Weekly', 'Per Visit', 'Per Unit'];
 
-export const NewRequest: React.FC<NewRequestProps> = ({ onNavigate, requestId }) => {
+export const NewRequest: React.FC = () => {
+  const navigate = useNavigate();
+  const { id: requestId } = useParams();
   const { currentUser, priorities, attributes, addRequest, updateRequest, requests, users } = useStore();
   const { addToast } = useToast();
 
@@ -223,7 +221,7 @@ export const NewRequest: React.FC<NewRequestProps> = ({ onNavigate, requestId })
       addRequest(newRequestPayload);
     }
 
-    onNavigate('dashboard');
+    navigate('/');
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,7 +259,7 @@ export const NewRequest: React.FC<NewRequestProps> = ({ onNavigate, requestId })
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button onClick={() => onNavigate('dashboard')} className="p-2 hover:bg-slate-200 rounded-full transition">
+          <button onClick={() => navigate('/')} className="p-2 hover:bg-slate-200 rounded-full transition">
             <ArrowLeft size={20} strokeWidth={1.75} />
           </button>
           <h2 className="text-2xl font-bold text-slate-800 tracking-tight">{requestId ? 'Edit & Resubmit Request' : 'New Request'}</h2>

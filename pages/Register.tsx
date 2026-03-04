@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore, useToast } from '../store';
 import { Role } from '../types';
 import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
-interface RegisterProps {
-  onNavigate?: (page: string) => void;
-}
-
-export const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
+export const Register: React.FC = () => {
+  const navigate = useNavigate();
   const { setCurrentUser, addUser, validateInviteToken, markInviteTokenUsed } = useStore();
   const { addToast } = useToast();
 
@@ -121,9 +119,7 @@ export const Register: React.FC<RegisterProps> = ({ onNavigate }) => {
     setCurrentUser(newUser);
     addToast(`Welcome, ${newUser.name}! Registration successful.`, 'success');
 
-    if (onNavigate) {
-      onNavigate('dashboard');
-    }
+    navigate('/');
   };
 
   const inputClass = (field: string) =>

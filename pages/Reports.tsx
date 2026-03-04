@@ -1,16 +1,14 @@
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { RequestStatus, Role } from '../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { ArrowLeft, TrendingUp, Users, Clock, Target } from 'lucide-react';
 
-interface ReportsProps {
-  onNavigate: (page: string) => void;
-}
-
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'];
 
-export const Reports: React.FC<ReportsProps> = ({ onNavigate }) => {
+export const Reports: React.FC = () => {
+  const navigate = useNavigate();
   const { requests, priorities, users } = useStore();
 
   // Status Distribution
@@ -96,7 +94,7 @@ export const Reports: React.FC<ReportsProps> = ({ onNavigate }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <button onClick={() => onNavigate('dashboard')} className="p-2 hover:bg-slate-200 rounded-full transition"><ArrowLeft size={20} strokeWidth={1.75} /></button>
+        <button onClick={() => navigate('/')} className="p-2 hover:bg-slate-200 rounded-full transition"><ArrowLeft size={20} strokeWidth={1.75} /></button>
         <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Performance Reports</h2>
       </div>
 

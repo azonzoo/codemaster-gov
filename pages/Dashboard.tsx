@@ -1,15 +1,13 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { RequestStatus, Role, RequestItem, Classification } from '../types';
 import { Clock, CheckCircle, AlertCircle, FileText, ArrowRight, RotateCcw, Filter, Search, ChevronLeft, ChevronRight, ArrowUpDown, AlertTriangle } from 'lucide-react';
 
-interface DashboardProps {
-  onNavigate: (page: string, id?: string) => void;
-}
-
 const PAGE_SIZE = 15;
 
-export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
+export const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { requests, currentUser, priorities, users } = useStore();
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
@@ -165,7 +163,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h2>
         {(currentUser.role === Role.REQUESTER || currentUser.role === Role.ADMIN) && (
           <button
-            onClick={() => onNavigate('new-request')}
+            onClick={() => navigate('/requests/new')}
             className="btn-primary text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-medium text-sm shadow-sm"
           >
             <FileText size={18} />
@@ -323,11 +321,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       <td className="p-3 text-slate-500 text-xs">{new Date(req.createdAt).toLocaleDateString()}</td>
                       <td className="p-3 text-right pr-4">
                         {isRequesterAttention ? (
-                          <button onClick={() => onNavigate('edit-request', req.id)} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-100 flex items-center gap-1 ml-auto border border-blue-200/60">
+                          <button onClick={() => navigate(`/requests/${req.id}/edit`)} className="bg-blue-50 text-blue-700 px-3 py-1 rounded-md text-xs font-bold hover:bg-blue-100 flex items-center gap-1 ml-auto border border-blue-200/60">
                             Modify <RotateCcw size={12} />
                           </button>
                         ) : (
-                          <button onClick={() => onNavigate('request-detail', req.id)} className="text-slate-400 hover:text-blue-600 font-medium flex items-center gap-1 justify-end w-full text-xs transition-colors">
+                          <button onClick={() => navigate(`/requests/${req.id}`)} className="text-slate-400 hover:text-blue-600 font-medium flex items-center gap-1 justify-end w-full text-xs transition-colors">
                             View <ArrowRight size={14} />
                           </button>
                         )}

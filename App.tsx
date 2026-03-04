@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { StoreProvider, useStore } from './store';
 import { Layout } from './components/Layout';
 import { ToastContainer } from './components/ToastContainer';
@@ -23,62 +24,36 @@ const LoadingScreen: React.FC = () => (
   </div>
 );
 
-const AppContent: React.FC = () => {
+const AppRoutes: React.FC = () => {
   const { loading } = useStore();
-  const [activePage, setActivePage] = useState('dashboard');
-  const [detailId, setDetailId] = useState<string | undefined>(undefined);
-
-  // Check URL for registration link on mount
-  React.useEffect(() => {
-    if (window.location.pathname === '/register') {
-      setActivePage('register');
-    }
-  }, []);
-
-  const navigate = useCallback((page: string, id?: string) => {
-    setActivePage(page);
-    setDetailId(id);
-  }, []);
 
   if (loading) return <LoadingScreen />;
 
-  const renderPage = () => {
-    switch (activePage) {
-      case 'register':
-        return <Register onNavigate={navigate} />;
-      case 'dashboard':
-        return <Dashboard onNavigate={navigate} />;
-      case 'new-request':
-        return <NewRequest onNavigate={navigate} />;
-      case 'edit-request':
-        return detailId ? <NewRequest onNavigate={navigate} requestId={detailId} /> : <Dashboard onNavigate={navigate} />;
-      case 'request-detail':
-        return detailId ? <RequestDetail id={detailId} onNavigate={navigate} /> : <Dashboard onNavigate={navigate} />;
-      case 'admin':
-        return <Admin />;
-      case 'reports':
-        return <Reports onNavigate={navigate} />;
-      default:
-        return <Dashboard onNavigate={navigate} />;
-    }
-  };
-
   return (
-    <>
-      <Layout activePage={activePage} setActivePage={navigate}>
-        {renderPage()}
-      </Layout>
-      <ToastContainer />
-    </>
+    <Routes>
+      <Route path="/register" element={<Register />} />
+      <Route element={<Layout />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/requests/new" element={<NewRequest />} />
+        <Route path="/requests/:id/edit" element={<NewRequest />} />
+        <Route path="/requests/:id" element={<RequestDetail />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   );
 };
 
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <StoreProvider>
-        <AppContent />
-      </StoreProvider>
+      <BrowserRouter>
+        <StoreProvider>
+          <AppRoutes />
+          <ToastContainer />
+        </StoreProvider>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 };

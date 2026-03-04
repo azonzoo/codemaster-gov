@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useStore, useToast } from '../store';
 import { RequestStatus, Role, Classification, ClarificationComment } from '../types';
 import { DynamicForm } from '../components/DynamicForm';
 import { ArrowLeft, CheckCircle, XCircle, UserPlus, AlertTriangle, FileCheck, Mail, Edit3, RotateCcw, CornerUpLeft, Paperclip, Download, User as UserIcon, MessageSquare, Send, Clock, RefreshCw } from 'lucide-react';
 
-interface RequestDetailProps {
-  id: string;
-  onNavigate: (page: string, id?: string) => void;
-}
-
-export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) => {
+export const RequestDetail: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const { requests, currentUser, updateRequestStatus, updateRequest, users, priorities, attributes } = useStore();
   const { addToast } = useToast();
   const request = requests.find(r => r.id === id);
@@ -37,7 +35,7 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
         </div>
         <h3 className="text-lg font-semibold text-slate-700">Request not found</h3>
         <p className="text-slate-500 text-sm mt-1">The request may have been deleted or the ID is invalid.</p>
-        <button onClick={() => onNavigate('dashboard')} className="mt-4 text-blue-600 hover:underline text-sm">Back to Dashboard</button>
+        <button onClick={() => navigate('/')} className="mt-4 text-blue-600 hover:underline text-sm">Back to Dashboard</button>
       </div>
     );
   }
@@ -151,7 +149,7 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
     if (currentUser.id === request.requesterId && (request.status === RequestStatus.REJECTED || request.status === RequestStatus.RETURNED_FOR_CLARIFICATION)) {
       return (
         <div className="flex gap-2">
-          <button onClick={() => onNavigate('edit-request', request.id)} className="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+          <button onClick={() => navigate(`/requests/${request.id}/edit`)} className="btn-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
             <RotateCcw size={16} strokeWidth={1.75} /> Modify & Resubmit
           </button>
         </div>
@@ -298,7 +296,7 @@ export const RequestDetail: React.FC<RequestDetailProps> = ({ id, onNavigate }) 
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button onClick={() => onNavigate('dashboard')} className="p-2 hover:bg-slate-200 rounded-full transition"><ArrowLeft size={20} strokeWidth={1.75} /></button>
+        <button onClick={() => navigate('/')} className="p-2 hover:bg-slate-200 rounded-full transition"><ArrowLeft size={20} strokeWidth={1.75} /></button>
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{request.title}</h1>
           <p className="text-sm text-slate-500">{request.id} &bull; {request.classification} &bull; {request.requestType || 'New'}</p>
