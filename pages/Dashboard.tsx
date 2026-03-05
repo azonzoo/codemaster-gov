@@ -1,14 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRequestStore, useUserStore, useAdminStore, useLayoutStore } from '../stores';
 import { RequestStatus, Role, RequestItem, Classification } from '../types';
 import { calculateBusinessHours } from '../lib/businessHours';
 import { useToastStore } from '../stores';
-import { Clock, CheckCircle, AlertCircle, FileText, ArrowRight, RotateCcw, Filter, Search, ChevronLeft, ChevronRight, ArrowUpDown, AlertTriangle, UserPlus, XCircle, Columns, TrendingUp, Users as UsersIcon, BarChart2, ChevronDown, ChevronUp, FileSpreadsheet, LayoutGrid, FileDown } from 'lucide-react';
+import { useTableKeyboardNav } from '../hooks/useTableKeyboardNav';
+import { Clock, CheckCircle, AlertCircle, FileText, ArrowRight, RotateCcw, Filter, Search, ChevronLeft, ChevronRight, ArrowUpDown, AlertTriangle, UserPlus, XCircle, Columns, TrendingUp, Users as UsersIcon, BarChart2, ChevronDown, ChevronUp, FileSpreadsheet, LayoutGrid, FileDown, Award } from 'lucide-react';
 import { exportRequestsToExcel } from '../lib/exportExcel';
 import { exportBatchPdf } from '../lib/exportBatchPdf';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
 import { DashboardLayoutEditor } from '../components/DashboardLayoutEditor';
+import { PerformanceMetrics } from '../components/PerformanceMetrics';
+import { SLACountdown } from '../components/SLACountdown';
 
 const PAGE_SIZE = 15;
 const ANALYTICS_COLORS = ['#2563eb', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6'];
@@ -32,6 +35,7 @@ export const Dashboard: React.FC = () => {
   const updateRequest = useRequestStore((s) => s.updateRequest);
   const addToast = useToastStore((s) => s.addToast);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showPerformance, setShowPerformance] = useState(false);
   const [showLayoutEditor, setShowLayoutEditor] = useState(false);
 
   // Layout store
@@ -188,6 +192,34 @@ export const Dashboard: React.FC = () => {
 
   // Reset page when filters change
   useMemo(() => { setPage(1); }, [filterStatus, filterPriority, filterClassification, filterProject, searchQuery]);
+
+  // Keyboard navigation for table
+  const tbodyRef = useRef<HTMLTableSectionElement>(null);
+
+  const handleTableEnter = useCallback(
+    (index: number) => {
+      const req = paginatedRequests[index];
+      if (!req) return;
+      const isRequesterAttention =
+        currentUser.id === req.requesterId &&
+        (req.status === RequestStatus.REJECTED || req.status === RequestStatus.RETURNED_FOR_CLARIFICATION);
+      if (isRequesterAttention) {
+        navigate(`/requests/${req.id}/edit`);
+      } else {
+        navigate(`/requests/${req.id}`);
+      }
+    },
+    [paginatedRequests, currentUser, navigate]
+  );
+
+  const { focusedIndex, setFocusedIndex, handleKeyDown: handleTableKeyDown } = useTableKeyboardNav({
+    rowCount: paginatedRequests.length,
+    onEnter: handleTableEnter,
+    tableRef: tbodyRef as React.RefObject<HTMLTableSectionElement>,
+  });
+
+  // Reset focused index when page, filters, or search change
+  useMemo(() => { setFocusedIndex(-1); }, [page, filterStatus, filterPriority, filterClassification, filterProject, searchQuery]);
 
   const getStatusColor = (status: RequestStatus) => {
     switch (status) {
@@ -472,6 +504,35 @@ export const Dashboard: React.FC = () => {
           );
         }
 
+        if (widget.id === 'performance') {
+          // Only show for Admin and POC roles
+          if (currentUser.role !== Role.ADMIN && currentUser.role !== Role.POC) return null;
+          return (
+            <React.Fragment key={widget.id}>
+              {/* Specialist Performance Toggle */}
+              <div className="flex items-center">
+                <button
+                  onClick={() => setShowPerformance(!showPerformance)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  aria-expanded={showPerformance}
+                  aria-controls="performance-panel"
+                >
+                  <Award size={16} className="text-amber-500" />
+                  Specialist Performance
+                  {showPerformance ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+              </div>
+
+              {/* Performance Metrics Panel */}
+              {showPerformance && (
+                <div id="performance-panel" className="animate-fadeIn">
+                  <PerformanceMetrics requests={requests} users={users} />
+                </div>
+              )}
+            </React.Fragment>
+          );
+        }
+
         if (widget.id === 'request-table') {
           return (
             <React.Fragment key={widget.id}>
@@ -609,7 +670,20 @@ export const Dashboard: React.FC = () => {
                 {visibleColumns.has('action') && <th scope="col" className="p-3 text-right pr-4">Action</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+            <tbody
+              ref={tbodyRef}
+              className="divide-y divide-slate-100 dark:divide-slate-700"
+              onKeyDown={handleTableKeyDown}
+              onFocus={(e) => {
+                // When tbody or a row receives focus and no row is focused yet, focus the first row
+                if (focusedIndex < 0 && paginatedRequests.length > 0) {
+                  const target = e.target as HTMLElement;
+                  if (target.tagName === 'TR' || target === tbodyRef.current) {
+                    setFocusedIndex(0);
+                  }
+                }
+              }}
+            >
               {paginatedRequests.length === 0 ? (
                 <tr><td colSpan={visibleColumns.size + (canBulkAction ? 1 : 0)} className="p-12 text-center" role="status">
                   <FileText size={32} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
@@ -619,27 +693,21 @@ export const Dashboard: React.FC = () => {
                   </p>
                 </td></tr>
               ) : (
-                paginatedRequests.map(req => {
+                paginatedRequests.map((req, rowIdx) => {
                   const priorityMeta = getPriorityDisplay(req.priorityId);
                   const isRequesterAttention = currentUser.id === req.requesterId && (req.status === RequestStatus.REJECTED || req.status === RequestStatus.RETURNED_FOR_CLARIFICATION);
-                  const slaBadge = getSLABadge(req);
+                  const reqPriority = priorities.find(p => p.id === req.priorityId);
+                  const isRowFocused = focusedIndex === rowIdx;
 
                   return (
                     <tr
                       key={req.id}
-                      className="table-row-hover"
-                      tabIndex={0}
+                      data-row-index={rowIdx}
+                      className={`table-row-hover outline-none ${isRowFocused ? 'ring-2 ring-blue-500 dark:ring-blue-400 bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
+                      tabIndex={isRowFocused ? 0 : -1}
                       role="link"
                       aria-label={`Request ${req.id}: ${req.title}, status ${req.status}`}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          if (isRequesterAttention) {
-                            navigate(`/requests/${req.id}/edit`);
-                          } else {
-                            navigate(`/requests/${req.id}`);
-                          }
-                        }
-                      }}
+                      onClick={() => setFocusedIndex(rowIdx)}
                     >
                       {canBulkAction && (
                         <td className="p-3 pl-4">
@@ -667,9 +735,7 @@ export const Dashboard: React.FC = () => {
                         <td className="p-3">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-slate-900 dark:text-slate-100 truncate max-w-[200px]">{req.title}</span>
-                            {slaBadge && (
-                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${slaBadge.className}`}>{slaBadge.label}</span>
-                            )}
+                            <SLACountdown request={req} priority={reqPriority} />
                           </div>
                         </td>
                       )}
@@ -710,10 +776,17 @@ export const Dashboard: React.FC = () => {
           </table>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-            <span>Page {page} of {totalPages}</span>
+        {/* Pagination & Keyboard Navigation Hint */}
+        <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-4">
+            {totalPages > 1 && <span>Page {page} of {totalPages}</span>}
+            {paginatedRequests.length > 0 && (
+              <span className="text-xs text-slate-400 dark:text-slate-500" aria-label="Keyboard navigation hints">
+                &#8593;&#8595; Navigate rows &middot; Enter to open &middot; Esc to deselect
+              </span>
+            )}
+          </div>
+          {totalPages > 1 && (
             <div className="flex items-center gap-2">
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed" aria-label="Previous page">
                 <ChevronLeft size={16} />
@@ -730,8 +803,8 @@ export const Dashboard: React.FC = () => {
                 <ChevronRight size={16} />
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
             </React.Fragment>
           );

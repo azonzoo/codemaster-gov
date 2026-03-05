@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserStore, useAdminStore, useRequestStore, useToastStore } from '../stores';
 import { Classification, MaterialSubType, ServiceSubType, RequestStatus, RequestItem, AttributeType } from '../types';
 import { DynamicForm } from '../components/DynamicForm';
-import { ArrowLeft, ArrowRight, Send, Info, AlertTriangle, CheckCircle, Paperclip, X, FileText, Eye, Upload, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Send, Info, AlertTriangle, CheckCircle, Paperclip, X, FileText, Eye, Upload, UploadCloud, Loader2 } from 'lucide-react';
 import { uploadFile, validateFile, formatFileSize } from '../lib/fileUpload';
 
 const MAX_ATTACHMENT_SIZE = 10_000_000; // 10MB (upgraded with Supabase Storage)
@@ -232,19 +232,17 @@ export const NewRequest: React.FC = () => {
   };
 
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const uploadSingleFile = async (file: File) => {
     const validation = validateFile(file);
     if (!validation.valid) {
       addToast(validation.error || 'Invalid file.', 'warning');
-      e.target.value = '';
       return;
     }
 
-    setUploading(true);
     try {
       const result = await uploadFile(file, currentUser.id);
       const newAttachment = {
@@ -260,7 +258,61 @@ export const NewRequest: React.FC = () => {
       }));
       addToast(`${file.name} uploaded (${formatFileSize(file.size)}).`, 'info');
     } catch (err: any) {
-      addToast(`Upload failed: ${err.message || 'Unknown error'}`, 'error');
+      addToast(`Upload failed for ${file.name}: ${err.message || 'Unknown error'}`, 'error');
+    }
+  };
+
+  const handleFileDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    dragCounter.current = 0;
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    try {
+      for (const file of files) {
+        await uploadSingleFile(file);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (dragCounter.current === 1) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    try {
+      for (const file of files) {
+        await uploadSingleFile(file);
+      }
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -282,25 +334,35 @@ export const NewRequest: React.FC = () => {
         <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">Step {step} of {TOTAL_STEPS}</div>
       </div>
 
-      {/* Step Indicator */}
+      {/* Step Indicator — Clickable for completed steps */}
       <div className="flex items-center gap-1" role="list" aria-label="Request form steps">
         {stepLabels.map((label, i) => {
           const stepNum = i + 1;
           const isActive = step === stepNum;
           const isCompleted = step > stepNum || (stepNum === 1 && dbChecked);
+          const canClick = isCompleted && !isActive;
           return (
-            <div
+            <button
               key={label}
-              className="flex-1"
+              type="button"
+              className={`flex-1 group ${canClick ? 'cursor-pointer' : 'cursor-default'}`}
               role="listitem"
               aria-current={isActive ? 'step' : undefined}
-              aria-label={`Step ${stepNum}: ${label} - ${isActive ? 'current' : isCompleted ? 'completed' : 'upcoming'}`}
+              aria-label={`Step ${stepNum}: ${label} - ${isActive ? 'current' : isCompleted ? 'completed, click to go back' : 'upcoming'}`}
+              onClick={() => {
+                if (canClick) {
+                  setValidationErrors([]);
+                  setStep(stepNum);
+                }
+              }}
+              disabled={!canClick && !isActive}
+              tabIndex={canClick ? 0 : -1}
             >
-              <div className={`h-2 rounded-full transition-all ${isCompleted ? 'step-completed' : isActive ? 'step-active' : 'bg-slate-200 dark:bg-slate-700'}`} />
-              <p className={`text-xs mt-1 text-center font-medium ${isActive ? 'text-blue-600 dark:text-blue-400' : isCompleted ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+              <div className={`h-2 rounded-full transition-all ${isCompleted ? 'step-completed' : isActive ? 'step-active' : 'bg-slate-200 dark:bg-slate-700'} ${canClick ? 'group-hover:opacity-80 group-hover:scale-y-150 transform transition-transform' : ''}`} />
+              <p className={`text-xs mt-1 text-center font-medium transition-colors ${isActive ? 'text-blue-600 dark:text-blue-400' : isCompleted ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'} ${canClick ? 'group-hover:text-emerald-700 dark:group-hover:text-emerald-300 group-hover:underline' : ''}`}>
                 {label}
               </p>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -609,13 +671,49 @@ export const NewRequest: React.FC = () => {
               <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3 flex items-center gap-2">
                 <Paperclip size={14} strokeWidth={1.75} /> Attachments
               </h4>
-              <div className="flex items-center gap-4">
-                <label className={`${uploading ? 'opacity-50 pointer-events-none' : 'cursor-pointer'} bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-lg flex items-center gap-2 transition border border-slate-200/60 dark:border-slate-600`}>
-                  {uploading ? <Loader2 size={16} strokeWidth={1.75} className="animate-spin" /> : <Upload size={16} strokeWidth={1.75} />}
-                  <span className="text-sm font-medium">{uploading ? 'Uploading...' : 'Choose File'}</span>
-                  <input type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt" onChange={handleFileUpload} disabled={uploading} aria-label="Attach file" />
-                </label>
-                <span className="text-xs text-slate-500 dark:text-slate-400">Max 10MB per file (Images, PDF, Office, CSV)</span>
+              <div
+                onDragEnter={handleDragEnter}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleFileDrop}
+                onClick={() => !uploading && fileInputRef.current?.click()}
+                className={`relative rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer
+                  ${isDragging
+                    ? 'border-blue-500 bg-blue-50/70 dark:border-blue-400 dark:bg-blue-500/10'
+                    : 'border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/30 hover:border-blue-400 hover:bg-blue-50/40 dark:hover:border-blue-500/60 dark:hover:bg-blue-500/5'
+                  }
+                  ${uploading ? 'pointer-events-none' : ''}
+                `}
+              >
+                {uploading && (
+                  <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 rounded-xl flex items-center justify-center z-10 backdrop-blur-[1px]">
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 size={28} strokeWidth={1.75} className="animate-spin text-blue-500 dark:text-blue-400" />
+                      <span className="text-sm font-medium text-blue-600 dark:text-blue-400">Uploading...</span>
+                    </div>
+                  </div>
+                )}
+                <div className="flex flex-col items-center justify-center py-8 px-4">
+                  <div className={`p-3 rounded-full mb-3 transition-colors ${isDragging ? 'bg-blue-100 dark:bg-blue-500/20' : 'bg-slate-100 dark:bg-slate-700/60'}`}>
+                    <UploadCloud size={28} strokeWidth={1.5} className={`transition-colors ${isDragging ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">
+                    {isDragging ? 'Drop files here' : 'Drag & drop files here or click to browse'}
+                  </p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                    Max 10MB per file (Images, PDF, Office, CSV)
+                  </p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt"
+                  multiple
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  aria-label="Attach file"
+                />
               </div>
 
               {formData.attachments && formData.attachments.length > 0 && (

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface DashboardWidget {
-  id: string; // 'kpi-cards' | 'analytics' | 'request-table'
+  id: string; // 'kpi-cards' | 'analytics' | 'performance' | 'request-table'
   label: string;
   visible: boolean;
   order: number;
@@ -21,7 +21,8 @@ interface LayoutState {
 const DEFAULT_WIDGETS: DashboardWidget[] = [
   { id: 'kpi-cards', label: 'KPI Cards', visible: true, order: 0 },
   { id: 'analytics', label: 'Analytics', visible: true, order: 1 },
-  { id: 'request-table', label: 'Request Table', visible: true, order: 2 },
+  { id: 'performance', label: 'Specialist Performance', visible: true, order: 2 },
+  { id: 'request-table', label: 'Request Table', visible: true, order: 3 },
 ];
 
 export const useLayoutStore = create<LayoutState>()(
@@ -65,6 +66,19 @@ export const useLayoutStore = create<LayoutState>()(
     }),
     {
       name: 'cm-dashboard-layout',
+      // Merge new default widgets into persisted state so existing users get the new widget
+      merge: (persisted, current) => {
+        const persistedState = persisted as Partial<LayoutState> | undefined;
+        if (!persistedState?.widgets) return { ...current, ...persistedState };
+        const existingIds = new Set(persistedState.widgets.map((w) => w.id));
+        const missingWidgets = DEFAULT_WIDGETS.filter((w) => !existingIds.has(w.id));
+        const maxOrder = Math.max(...persistedState.widgets.map((w) => w.order), -1);
+        const mergedWidgets = [
+          ...persistedState.widgets,
+          ...missingWidgets.map((w, i) => ({ ...w, order: maxOrder + 1 + i })),
+        ];
+        return { ...current, ...persistedState, widgets: mergedWidgets };
+      },
     }
   )
 );

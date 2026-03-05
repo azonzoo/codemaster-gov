@@ -1,9 +1,10 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useInitializeStores } from './stores';
+import { useInitializeStores, useUserStore } from './stores';
 import { Layout } from './components/Layout';
 import { ToastContainer } from './components/ToastContainer';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { Role } from './types';
 
 // Lazy-loaded pages for code splitting
 const Dashboard = React.lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -40,6 +41,13 @@ const PageLoader: React.FC = () => (
   </div>
 );
 
+/** Route guard — redirects non-admin users away from /admin */
+const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const role = useUserStore((s) => s.currentUser.role);
+  if (role !== Role.ADMIN) return <Navigate to="/" replace />;
+  return <>{children}</>;
+};
+
 const AppRoutes: React.FC = () => {
   const loading = useInitializeStores();
 
@@ -54,7 +62,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/requests/new" element={<NewRequest />} />
           <Route path="/requests/:id/edit" element={<NewRequest />} />
           <Route path="/requests/:id" element={<RequestDetail />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<AdminGuard><Admin /></AdminGuard>} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/activity" element={<ActivityFeed />} />
           <Route path="/workflow" element={<WorkflowBuilder />} />

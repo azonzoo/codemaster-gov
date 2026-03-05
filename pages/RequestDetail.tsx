@@ -6,6 +6,8 @@ import { DynamicForm } from '../components/DynamicForm';
 import { calculateBusinessHours, formatBusinessHours } from '../lib/businessHours';
 import { ArrowLeft, CheckCircle, XCircle, UserPlus, AlertTriangle, FileCheck, Mail, Edit3, RotateCcw, CornerUpLeft, Paperclip, Download, User as UserIcon, MessageSquare, Send, Clock, RefreshCw, FileDown } from 'lucide-react';
 import { exportRequestPdf } from '../lib/exportRequestPdf';
+import { SLACountdown } from '../components/SLACountdown';
+import { RequestTimeline } from '../components/RequestTimeline';
 
 export const RequestDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -324,11 +326,7 @@ export const RequestDetail: React.FC = () => {
           <p className="text-sm text-slate-500 dark:text-slate-400">{request.id} &bull; {request.classification} &bull; {request.requestType || 'New'}</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          {slaInfo && request.status !== RequestStatus.COMPLETED && request.status !== RequestStatus.REJECTED && (
-            <span role="status" aria-label={slaInfo.breached ? `SLA breached, ${Math.abs(slaInfo.remaining)} hours overdue` : `SLA ${slaInfo.remaining} hours remaining`} className={`badge-refined ring-1 font-bold ${slaInfo.breached ? 'bg-rose-500 text-white ring-rose-500/20' : slaInfo.ratio >= 0.75 ? 'bg-amber-500 text-white ring-amber-500/20' : 'bg-emerald-50 text-emerald-800 ring-emerald-600/10 dark:bg-emerald-950 dark:text-emerald-400'}`}>
-              {slaInfo.breached ? `SLA Breached (${Math.abs(slaInfo.remaining)}h over)` : `${slaInfo.remaining}h remaining`}
-            </span>
-          )}
+          <SLACountdown request={request} priority={priority} expanded />
           <span role="status" aria-label={`Status: ${request.status}`} className={`badge-refined ring-1 font-bold ${
             request.status === RequestStatus.REJECTED ? 'bg-rose-50 text-rose-800 ring-rose-600/10 dark:bg-rose-950 dark:text-rose-400' :
             request.status === RequestStatus.RETURNED_FOR_CLARIFICATION ? 'bg-amber-50 text-amber-800 ring-amber-600/10 dark:bg-amber-950 dark:text-amber-400' :
@@ -339,6 +337,11 @@ export const RequestDetail: React.FC = () => {
           </span>
         </div>
       </div>
+
+      {/* Request Timeline */}
+      {stageTimestamps.length > 0 && (
+        <RequestTimeline stageTimestamps={stageTimestamps} currentStatus={request.status} />
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
